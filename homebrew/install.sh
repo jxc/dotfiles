@@ -13,6 +13,6 @@ then
 fi
 
 # Install homebrew packages
-brew install grc coreutils spark
+brew install ack autojump brew-cask coreutils findutils git openssl xctool zsh
 
 exit 0

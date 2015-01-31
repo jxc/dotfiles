@@ -1,1 +1,1 @@
-alias ios="open /Applications/Xcode.app/Contents/Applications/iOS\ Simulator.app"
+alias simulator='open $(xcode-select -p)/Platforms/iPhoneSimulator.platform/Developer/Applications/iPhone\ Simulator.app'

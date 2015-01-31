@@ -1,8 +1,40 @@
 # shortcut to this dotfiles path is $ZSH
 export ZSH=$HOME/.dotfiles
 
-# your project folder that we can `c [tab]` to
-export PROJECTS=~/Code
+######################################## Antigen ########################################
+
+source "$HOME/.antigen/antigen.zsh"
+
+# Load the oh-my-zsh
+antigen use oh-my-zsh
+
+# Bundles from the default repo (robbyrussell's oh-my-zsh).
+antigen bundle autojump
+antigen bundle extract
+antigen bundle osx
+antigen bundle pod
+antigen bundle ruby
+antigen bundle rvm
+antigen bundle sudo
+antigen bundle svn-fast-info
+antigen bundle web-search
+
+# Remember aliases
+antigen bundle djui/alias-tips
+
+# Automatically update antigen
+antigen bundle unixorn/autoupdate-antigen.zshplugin
+
+# ZSH completions
+antigen bundle zsh-users/zsh-completions
+
+# Theme
+antigen theme tylerwolf/zsh-theme twolf
+
+# Done
+antigen apply
+
+######################################## Dotfiles #######################################
 
 # use .localrc for SUPER SECRET CRAP that you don't
 # want in your public, versioned repo.
