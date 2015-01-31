@@ -20,3 +20,9 @@ alias -s ps=gv
 alias -s dvi=xdvi
 alias -s chm=xchm
 alias -s djvu=djview
+
+# because typing 'cd' is A LOT of work!!
+alias ..='cd ../'
+alias ...='cd ../../'
+alias ....='cd ../../../'
+alias .....='cd ../../../../'
