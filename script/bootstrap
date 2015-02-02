@@ -152,5 +152,8 @@ then
   fi
 fi
 
+info 'installing topics'
+source "$HOME/.dotfiles/script/install"
+
 echo ''
-echo '  All installed!'
+echo '  All installed!  Restart your shell.'
