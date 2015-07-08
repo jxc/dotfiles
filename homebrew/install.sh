@@ -16,6 +16,6 @@ fi
 brew install ack autojump caskroom/cask/brew-cask coreutils findutils git openssl xctool zsh cowsay
 
 # Make sure we have chrome
-brew cask install google-chrome
+brew cask install google-chrome sublime-text3
 
 exit 0
