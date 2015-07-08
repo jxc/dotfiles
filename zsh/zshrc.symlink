@@ -29,7 +29,7 @@ antigen bundle unixorn/autoupdate-antigen.zshplugin
 antigen bundle zsh-users/zsh-completions
 
 # Theme
-antigen theme tylerwolf/zsh-theme twolf
+antigen theme jxc/zsh-theme jxc
 # antigen theme clean
 
 # Done
