@@ -30,7 +30,7 @@ antigen bundle zsh-users/zsh-completions
 
 # Theme
 antigen theme tylerwolf/zsh-theme twolf
-# antigen theme pygmalion
+# antigen theme clean
 
 # Done
 antigen apply
