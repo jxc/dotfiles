@@ -1,4 +1,4 @@
-Forked from https://github.com/holman/dotfiles
+Forked from https://github.com/tylerwolf/dotfiles
 
 ## dotfiles
 
