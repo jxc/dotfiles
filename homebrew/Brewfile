@@ -1,0 +1,10 @@
+# Replace outdated system libraries
+git
+openssl
+zsh
+
+# Productivity
+ack
+autojump
+coreutils
+findutils

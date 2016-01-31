@@ -19,7 +19,7 @@ fi
 
 # Tap taps
 tapped_taps=$(brew tap -1)
-for t in `cat ${DIR}/taps.txt`; do
+for t in `cat ${DIR}/Tapfile | grep -v "#"`; do
     if ! [ ! -z $(echo "${tapped_taps}" | grep "^${t}\$") ]
     then
         brew tap ${t}
@@ -28,7 +28,7 @@ done
 
 # Install Homebrew formulae
 installed_formulae=$(brew list -1)
-for f in `cat ${DIR}/formulae.txt`; do
+for f in `cat ${DIR}/Brewfile | grep -v "#"`; do
     if ! [ ! -z $(echo "${installed_formulae}" | grep "^${f}\$") ]
     then
         brew install ${f}
@@ -37,7 +37,7 @@ done
 
 # Install casks
 installed_casks=$(brew cask list -1)
-for c in `cat ${DIR}/casks.txt`; do
+for c in `cat ${DIR}/Caskfile | grep -v "#"`; do
     if ! [ ! -z $(echo "${installed_casks}" | grep "^${c}\$") ]
     then
         brew cask install ${c}

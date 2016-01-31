@@ -1,8 +1,0 @@
-ack
-autojump
-coreutils
-findutils
-git
-openssl
-xctool
-zsh
