@@ -34,18 +34,29 @@ cask 'firefox'
 cask 'google-chrome'
 cask 'iterm2'
 
+# Beer
+cask 'beersmith2'
+
 # Communication
 cask 'skype'
 cask 'slack'
 
 # Development
+cask 'appcode'
 cask 'atom'
+cask 'balsamiq-mockups'
 cask 'colorsnapper'
+cask 'dash'
 cask 'intellij-idea'
+cask 'postgres'
 cask 'sourcetree'
 cask 'virtualbox'
 cask 'vagrant'
 cask 'vagrant-manager'
+
+# Games
+cask 'battle-net'
+cask 'steam'
 
 # Media
 cask 'spotify'
@@ -54,3 +65,8 @@ cask 'vlc'
 # Productivity
 cask 'caffeine'
 cask 'dropbox'
+
+# Utilities
+cask 'appzapper'
+cask 'the-unarchiver'
+cask 'utorrent'
