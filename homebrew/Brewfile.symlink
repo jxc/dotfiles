@@ -53,6 +53,7 @@ cask 'sourcetree'
 cask 'virtualbox'
 cask 'vagrant'
 cask 'vagrant-manager'
+cask 'webstorm'
 
 # Games
 cask 'battle-net'
