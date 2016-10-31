@@ -184,5 +184,3 @@ function g_rebaseMe() {
   g rebase master
 }
 
-
-
