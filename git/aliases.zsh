@@ -2,7 +2,7 @@ alias g='git'
 compdef g=git
 alias gst='git status -sb'
 compdef _git gst=git-status
-alias gd='git diff'
+alias gd='git diff --color --color-words --abbrev'
 compdef _git gd=git-diff
 alias gdc='git diff --cached'
 compdef _git gdc=git-diff
@@ -71,10 +71,13 @@ alias glo='git log --oneline --decorate --color'
 compdef _git glo=git-log
 alias glog='git log --oneline --decorate --color --graph'
 compdef _git glog=git-log
+alias glol="git log  --color --graph --pretty=format:'%Cred%h%Creset%x09%C(yellow)%d%Creset %s %C(cyan)(%cr) %C(blue)[%an]%Creset' --abbrev-commit"
+compdef _git glol=git-log
 alias gss='git status -s'
 compdef _git gss=git-status
 alias ga='git add'
 compdef _git ga=git-add
+alias g_addAllAndCommit="ga .; gcmsg"
 alias gap='git add --patch'
 alias gm='git merge'
 compdef _git gm=git-merge
@@ -155,3 +158,31 @@ alias gignore='git update-index --assume-unchanged'
 alias gunignore='git update-index --no-assume-unchanged'
 # list temporarily ignored files
 alias gignored='git ls-files -v | grep "^[[:lower:]]"'
+
+# Rebase branch on master
+function colorTail() {
+  tail -f $1 | awk '
+/INFO/ {print "\033[32m" $0 "\033[39m"}
+/Exception/ {print "\033[31m" $0 "\033[39m"}'
+}
+
+function g.currentBranch {
+  br=`git branch | grep "*"`
+  echo ${br/* /}
+}
+
+function g_rebaseMe() {
+  figlet "REBASE OFF MASTER TIME!"
+
+  currentBranch=`g.currentBranch`
+  echo "Current branch: '$currentBranch', switching to master..."
+  
+  gcm
+  gl
+  echo "Back to '$currentBranch'..."
+  gco $currentBranch
+  g rebase master
+}
+
+
+
