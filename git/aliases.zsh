@@ -105,6 +105,11 @@ alias gstd='git stash drop'
 # or submodule.
 alias grt='cd $(git rev-parse --show-toplevel || echo ".")'
 
+# Find lost shit
+alias g_findDeletedFiles="git log --diff-filter=D —summary"
+alias g_findAnyMentionOfFile="g rev-list --all"
+alias g_findString="g log -S"
+
 #
 # Will return the current branch name
 # Usage example: git pull origin $(current_branch)
