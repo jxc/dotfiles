@@ -73,3 +73,15 @@ done
 unset config_files
 
 export PATH="$PATH:$HOME/.rvm/bin" # Add RVM to PATH for scripting
+
+ [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
+ # make autojumping TOO easy!
+ j() {
+     result=`autojump $@`
+     if [ "$result" = "." ]
+     then
+     	echo "Unable to find a jump for \"$@\" :( :( :("
+     else
+     	cd $result
+     fi
+ }
