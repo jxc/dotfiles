@@ -190,3 +190,8 @@ function g_rebaseMe() {
   g rebase master
 }
 
+function g_make_branch() {
+  input=$@
+  result=${input// /-}
+  gco -b $result
+}
