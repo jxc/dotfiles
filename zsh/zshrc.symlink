@@ -27,10 +27,11 @@ antigen bundle unixorn/autoupdate-antigen.zshplugin
 
 # ZSH completions
 antigen bundle zsh-users/zsh-completions
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-autosuggestions
 
 # Theme
 antigen theme jxc/zsh-theme jxc
-# antigen theme clean
 
 # Done
 antigen apply
