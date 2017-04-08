@@ -2,7 +2,7 @@ alias g='git'
 compdef g=git
 alias gst='git status -sb'
 compdef _git gst=git-status
-alias gd='git diff'
+alias gd='git diff --color --color-words --abbrev'
 compdef _git gd=git-diff
 alias gdc='git diff --cached'
 compdef _git gdc=git-diff
@@ -71,10 +71,13 @@ alias glo='git log --oneline --decorate --color'
 compdef _git glo=git-log
 alias glog='git log --oneline --decorate --color --graph'
 compdef _git glog=git-log
+alias glol="git log  --color --graph --pretty=format:'%Cred%h%Creset%x09%C(yellow)%d%Creset %s %C(cyan)(%cr) %C(blue)[%an]%Creset' --abbrev-commit"
+compdef _git glol=git-log
 alias gss='git status -s'
 compdef _git gss=git-status
 alias ga='git add'
 compdef _git ga=git-add
+alias g_addAllAndCommit="ga .; gcmsg"
 alias gap='git add --patch'
 alias gm='git merge'
 compdef _git gm=git-merge
@@ -90,6 +93,7 @@ compdef _git gm=git-mergetool
 
 alias gg='git gui citool'
 alias gga='git gui citool --amend'
+alias g_ammendAll="ga .; g commit --amend --no-edit"
 alias gk='gitk --all --branches'
 
 alias gsts='git stash show --text'
@@ -100,6 +104,11 @@ alias gstd='git stash drop'
 # Will cd into the top of the current repository
 # or submodule.
 alias grt='cd $(git rev-parse --show-toplevel || echo ".")'
+
+# Find lost shit
+alias g_findDeletedFiles="git log --diff-filter=D —summary"
+alias g_findAnyMentionOfFile="g rev-list --all"
+alias g_findString="g log -S"
 
 #
 # Will return the current branch name
@@ -155,3 +164,34 @@ alias gignore='git update-index --assume-unchanged'
 alias gunignore='git update-index --no-assume-unchanged'
 # list temporarily ignored files
 alias gignored='git ls-files -v | grep "^[[:lower:]]"'
+
+# Rebase branch on master
+function colorTail() {
+  tail -f $1 | awk '
+/INFO/ {print "\033[32m" $0 "\033[39m"}
+/Exception/ {print "\033[31m" $0 "\033[39m"}'
+}
+
+function g.currentBranch {
+  br=`git branch | grep "*"`
+  echo ${br/* /}
+}
+
+function g_rebaseMe() {
+  figlet "REBASE OFF MASTER TIME!"
+
+  currentBranch=`g.currentBranch`
+  echo "Current branch: '$currentBranch', switching to master..."
+  
+  gcm
+  gl
+  echo "Back to '$currentBranch'..."
+  gco $currentBranch
+  g rebase master
+}
+
+function g_make_branch() {
+  input=$@
+  result=${input// /-}
+  gco -b $result
+}
