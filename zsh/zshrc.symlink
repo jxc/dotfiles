@@ -86,3 +86,5 @@ unset config_files
  }
 
 eval "$(rbenv init -)"
+
+alias credstash='gcredstash'
