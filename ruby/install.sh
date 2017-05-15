@@ -1,7 +1,8 @@
 #!/bin/sh
 
-if test ! $(which rvm)
+if test ! $(which rbenv)
 then
-  echo "  Installing rvm for you."
-  \curl -sSL https://get.rvm.io | bash -s stable
+  echo "  Installing rbenv for you."
+  brew update
+  brew install rbenv
 fi
