@@ -2,7 +2,7 @@
 alias sbl='sublime'
 alias subl='sbl'
 
-alias reload!='. ~/.zshrc'
+alias reload_me='. ~/.zshrc'
 alias zshrc='sbl ~/.zshrc'
 
 # iOS

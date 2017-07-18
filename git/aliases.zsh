@@ -182,7 +182,7 @@ function g_rebaseMe() {
 
   currentBranch=`g.currentBranch`
   echo "Current branch: '$currentBranch', switching to master..."
-  
+
   gcm
   gl
   echo "Back to '$currentBranch'..."
@@ -194,4 +194,11 @@ function g_make_branch() {
   input=$@
   result=${input// /-}
   gco -b $result
+}
+
+function g_tagAndPush() {
+  figlet "TAG 'N PUSH TIME!"
+  gcm
+  g tag -a $@
+  g push --tag origin
 }
