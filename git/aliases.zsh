@@ -16,6 +16,8 @@ alias gp='git push'
 compdef _git gp=git-push
 alias gpt='git push --tags'
 compdef _git gpt=git-push
+alias gpF='git push --force-with-lease'
+compdef _git gp=git-push-force-with-lease
 alias gd='git diff'
 gdv() { git diff -w "$@" | view - }
 compdef _git gdv=git-diff
