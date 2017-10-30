@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if test ! $(which rbenv)
+if test ! $(which chruby)
 then
-  echo "  Installing rbenv for you."
+  echo "  Installing Chruby for you."
   brew update
-  brew install rbenv
+  brew install chruby
 fi

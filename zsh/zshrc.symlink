@@ -84,6 +84,3 @@ unset config_files
      	cd $result
      fi
  }
-
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
