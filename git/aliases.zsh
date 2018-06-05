@@ -105,6 +105,9 @@ alias gsta='git stash'
 alias gstp='git stash pop'
 alias gstd='git stash drop'
 
+# DOCKER
+alias dk='docker stop $(docker ps -a -q) && docker rm $(docker ps -a -q)'
+
 # Will cd into the top of the current repository
 # or submodule.
 alias grt='cd $(git rev-parse --show-toplevel || echo ".")'
