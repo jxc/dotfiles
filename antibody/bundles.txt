@@ -10,6 +10,6 @@ zsh-users/zsh-completions
 zsh-users/zsh-autosuggestions
 
 # these should be at last!
-sindresorhus/pure
+intelfx/pure
 zsh-users/zsh-syntax-highlighting
 zsh-users/zsh-history-substring-search
