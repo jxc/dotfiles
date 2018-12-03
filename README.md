@@ -29,6 +29,16 @@ $ zsh # or just close and open your terminal again.
 
 > All changed files will be backed up with a `.backup` suffix.
 
+### macOS defaults
+
+You use it by running:
+
+```console
+$DOTFILES/macos/set-defaults.sh
+```
+
+And logging out and in again/restart.
+
 ## topical
 
 Everything's built around topic areas. If you're adding a new area to your
