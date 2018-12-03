@@ -8,11 +8,3 @@ then
 else
 	echo "Homebrew zsh is default shell"
 fi
-
-if [[ ! -a "$HOME/.antigen" ]]
-then
-	echo "Installing Antigen"
-	git clone https://github.com/zsh-users/antigen.git ~/.antigen
-else
-	echo "Antigen already installed"
-fi
