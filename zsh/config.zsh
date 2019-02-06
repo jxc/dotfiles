@@ -52,18 +52,21 @@ bindkey '^[b' backward-word
 bindkey '^[^[[C' forward-word
 bindkey '^[f' forward-word
 
-# go to the beginning/end of line with fn+left/right or home/end
+# go to the beginning/end of line with fn+left/right, home/end, or ctrl+a/e
 bindkey "${terminfo[khome]}" beginning-of-line
 bindkey '^[[H' beginning-of-line
+bindkey '^A' beginning-of-line
 bindkey "${terminfo[kend]}"  end-of-line
 bindkey '^[[F' end-of-line
+bindkey '^E' end-of-line
 
 # delete char with backspaces and delete
 bindkey '^[[3~' delete-char
 bindkey '^?' backward-delete-char
 
-# delete word with ctrl+backspace
+# delete word with ctrl+backspace or ctrl+w
 bindkey '^[[3;5~' backward-delete-word
+bindkey '^W' backward-delete-word
 # bindkey '^[[3~' backward-delete-word
 
 # search history with fzf if installed, default otherwise
