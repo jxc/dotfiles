@@ -17,9 +17,6 @@ antigen bundle ruby
 antigen bundle rbenv
 antigen bundle sudo
 
-# Remember aliases
-antigen bundle djui/alias-tips
-
 # Done
 antigen apply
 
@@ -36,13 +33,13 @@ zplug "zsh-users/zsh-autosuggestions"
 # (If the defer tag is given 2 or above, run after compinit command)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
+zplug "djui/alias-tips"
+
 # Theme
 zplug 'jxc/zsh-theme', as:theme
 
 zplug load
-
-# Done
-# zplug install
+zplug install
 
 ######################################## Dotfiles #######################################
 
