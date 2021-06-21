@@ -12,10 +12,6 @@ antigen use oh-my-zsh
 antigen bundle autojump
 antigen bundle extract
 antigen bundle osx
-antigen bundle pod
-antigen bundle ruby
-antigen bundle rbenv
-antigen bundle sudo
 
 # Done
 antigen apply
