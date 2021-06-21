@@ -16,17 +16,9 @@ antigen bundle pod
 antigen bundle ruby
 antigen bundle rbenv
 antigen bundle sudo
-antigen bundle svn-fast-info
-antigen bundle web-search
 
 # Remember aliases
 antigen bundle djui/alias-tips
-
-# Automatically update antigen
-# antigen bundle unixorn/autoupdate-antigen.zshplugin
-
-# Theme
-antigen theme jxc/zsh-theme jxc
 
 # Done
 antigen apply
@@ -44,10 +36,13 @@ zplug "zsh-users/zsh-autosuggestions"
 # (If the defer tag is given 2 or above, run after compinit command)
 zplug "zsh-users/zsh-syntax-highlighting", defer:2
 
+# Theme
+zplug 'jxc/zsh-theme', as:theme
+
 zplug load
 
 # Done
-zplug install
+# zplug install
 
 ######################################## Dotfiles #######################################
 
