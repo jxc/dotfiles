@@ -23,18 +23,31 @@ antigen bundle web-search
 antigen bundle djui/alias-tips
 
 # Automatically update antigen
-antigen bundle unixorn/autoupdate-antigen.zshplugin
-
-# ZSH completions
-antigen bundle zsh-users/zsh-completions
-antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle zsh-users/zsh-autosuggestions
+# antigen bundle unixorn/autoupdate-antigen.zshplugin
 
 # Theme
 antigen theme jxc/zsh-theme jxc
 
 # Done
 antigen apply
+
+######################################## Zplug #######################################
+export ZPLUG_HOME=/usr/local/opt/zplug
+source $ZPLUG_HOME/init.zsh
+
+zplug "zsh-users/zsh-completions"
+zplug "zsh-users/zsh-autosuggestions"
+
+# Set the priority when loading
+# e.g., zsh-syntax-highlighting must be loaded
+# after executing compinit command and sourcing other plugins
+# (If the defer tag is given 2 or above, run after compinit command)
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
+zplug load
+
+# Done
+zplug install
 
 ######################################## Dotfiles #######################################
 
