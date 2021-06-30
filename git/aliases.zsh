@@ -194,7 +194,7 @@ function g_rebaseMe() {
   gl
   echo "Back to '$currentBranch'..."
   gco $currentBranch
-  g rebase master
+  g rebase main
 }
 
 function g_make_branch() {
