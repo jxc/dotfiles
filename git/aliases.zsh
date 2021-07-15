@@ -184,11 +184,11 @@ function g.currentBranch {
   echo ${br/* /}
 }
 
-function g_rebaseMe() {
-  figlet "REBASE OFF MASTER TIME!"
+function g_rebase_me() {
+  figlet "REBASE OFF MAIN TIME!"
 
   currentBranch=`g.currentBranch`
-  echo "Current branch: '$currentBranch', switching to master..."
+  echo "Current branch: '$currentBranch', switching to main..."
 
   gcm
   gl
@@ -208,4 +208,14 @@ function g_tagAndPush() {
   gcm
   g tag -a $@
   g push --tag origin
+}
+
+function in_each_ruby_dir(){
+  local root=$(git rev-parse --show-toplevel)
+  cd $root
+  for g in $(find . -name 'Gemfile'); do
+    pushd $(dirname ${g})
+    $@
+    popd
+  done
 }
