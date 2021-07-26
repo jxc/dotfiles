@@ -94,3 +94,6 @@ unset config_files
      	cd $result
      fi
  }
+
+# Rbenv
+eval "$(rbenv init -)"
