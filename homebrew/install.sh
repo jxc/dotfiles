@@ -18,6 +18,6 @@ else
 fi
 
 # Install homebrew packages
-brew install ack autojump coreutils findutils git openssl zsh cowsay
+brew install ack autojump coreutils findutils git openssl zsh cowsay zplug
 
 exit 0

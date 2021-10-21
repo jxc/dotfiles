@@ -12,29 +12,39 @@ antigen use oh-my-zsh
 antigen bundle autojump
 antigen bundle extract
 antigen bundle osx
-antigen bundle pod
-antigen bundle ruby
-antigen bundle rbenv
-antigen bundle sudo
-antigen bundle svn-fast-info
-antigen bundle web-search
-
-# Remember aliases
-antigen bundle djui/alias-tips
-
-# Automatically update antigen
-antigen bundle unixorn/autoupdate-antigen.zshplugin
-
-# ZSH completions
-antigen bundle zsh-users/zsh-completions
-antigen bundle zsh-users/zsh-syntax-highlighting
-antigen bundle zsh-users/zsh-autosuggestions
-
-# Theme
-antigen theme jxc/zsh-theme jxc
 
 # Done
 antigen apply
+
+######################################## Zplug #######################################
+export ZPLUG_HOME=/usr/local/opt/zplug
+source $ZPLUG_HOME/init.zsh
+
+zplug "zsh-users/zsh-history-substring-search"
+zplug "zsh-users/zsh-completions"
+zplug "zsh-users/zsh-autosuggestions"
+
+# Set the priority when loading
+# e.g., zsh-syntax-highlighting must be loaded
+# after executing compinit command and sourcing other plugins
+# (If the defer tag is given 2 or above, run after compinit command)
+zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
+zplug "djui/alias-tips"
+
+# Theme
+zplug 'jxc/zsh-theme', as:theme
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Then, source plugins and add commands to $PATH
+zplug load
 
 ######################################## Dotfiles #######################################
 
@@ -84,3 +94,6 @@ unset config_files
      	cd $result
      fi
  }
+
+# Rbenv
+eval "$(rbenv init -)"
