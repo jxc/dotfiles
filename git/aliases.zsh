@@ -152,20 +152,6 @@ function _git_log_prettily(){
 alias glp="_git_log_prettily"
 compdef _git glp=git-log
 
-# Work In Progress (wip)
-# These features allow to pause a branch development and switch to another one (wip)
-# When you want to go back to work, just unwip it
-#
-# This function return a warning if the current branch is a wip
-function work_in_progress() {
-  if $(git log -n 1 2>/dev/null | grep -q -c "\-\-wip\-\-"); then
-    echo "WIP!!"
-  fi
-}
-# these alias commit and uncomit wip branches
-alias gwip='git add -A; git ls-files --deleted -z | xargs -r0 git rm; git commit -m "--wip--"'
-alias gunwip='git log -n 1 | grep -q -c "\-\-wip\-\-" && git reset HEAD~1'
-
 # these alias ignore changes to file
 alias gignore='git update-index --assume-unchanged'
 alias gunignore='git update-index --no-assume-unchanged'
@@ -218,4 +204,31 @@ function in_each_ruby_dir(){
     $@
     popd
   done
+}
+
+#######################
+# NEW FANCY FZF STUFF #
+#######################
+
+# gcho - checkout a branch
+###########################
+gch() {
+ git checkout "$(git branch --all | fzf | tr -d '[:space:]')"
+}
+
+# gbd - delete branch(es)
+###########################
+gbd() {
+ local branches branch
+  branches=$(git for-each-ref --count=30 --sort=-committerdate refs/heads/ --format="%(refname:short)") &&
+  branch=$(echo "$branches" | fzf --multi ) &&
+  git branch -D $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+}
+
+# fgl 'some words' - select among figlet fonts form the given string
+fgl() {
+  [ $# -eq 0 ] && return
+  cd /usr/local/Cellar/figlet/*/share/figlet/fonts
+  local font=$(ls *.flf | sort | fzf --no-multi --reverse --preview "figlet -f {} $@" --preview-window up) &&
+  figlet -f "$font" "$@" | pbcopy
 }
