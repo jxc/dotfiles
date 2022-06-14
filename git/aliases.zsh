@@ -97,7 +97,7 @@ compdef _git gm=git-mergetool
 
 alias gg='git gui citool'
 alias gga='git gui citool --amend'
-alias g_ammendAll="ga .; g commit --amend --no-edit"
+alias g_amendAll="ga .; g commit --amend --no-edit"
 alias gk='gitk --all --branches'
 
 alias gsts='git stash show --text'
@@ -210,9 +210,15 @@ function in_each_ruby_dir(){
 # NEW FANCY FZF STUFF #
 #######################
 
-# gcho - checkout a branch
+# gch - checkout a branch
 ###########################
 gch() {
+ git checkout "$(git branch | fzf | tr -d '[:space:]')"
+}
+
+# gch_all - same as `gch`, but with all branches
+###########################
+gch_all() {
  git checkout "$(git branch --all | fzf | tr -d '[:space:]')"
 }
 
