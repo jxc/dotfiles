@@ -1,5 +1,7 @@
 #!/bin/sh
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Don't ask ssh password all the time
 # if [ "$(uname -s)" = "Darwin" ]; then
 # 	git config --global credential.helper osxkeychain

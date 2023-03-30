@@ -7,6 +7,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Check for Homebrew
 if test $(which brew)
 then
