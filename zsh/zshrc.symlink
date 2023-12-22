@@ -51,3 +51,7 @@ unset config_files updated_at
 # want in your public, versioned repo.
 # shellcheck disable=SC1090
 [ -f ~/.localrc ] && . ~/.localrc
+
+# Pure theme
+autoload -U promptinit; promptinit
+prompt pure
