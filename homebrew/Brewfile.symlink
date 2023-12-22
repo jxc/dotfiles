@@ -1,15 +1,5 @@
-cask_args appdir: '/Applications'
-
-##
-# Taps
-##
-
-tap 'homebrew/cask'
-tap 'homebrew/bundle'
-
-##
-# Formulae
-##
+tap "homebrew/bundle"
+tap "homebrew/core"
 
 # Replace outdated system libraries
 brew 'git'
@@ -20,6 +10,8 @@ brew 'zsh'
 brew 'ack'
 brew 'autojump'
 brew 'coreutils'
+brew 'diff-so-fancy'
 brew 'findutils'
 brew 'cowsay'
+brew 'jenv'
 brew 'fzf'

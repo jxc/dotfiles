@@ -7,17 +7,19 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+eval "$(/opt/homebrew/bin/brew shellenv)"
+
 # Check for Homebrew
 if test $(which brew)
 then
   brew update
   brew bundle --global
+  brew cleanup
 else
   echo "  Installing Homebrew for you."
-  ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.env-vars
+  eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-
-# Install homebrew packages
-brew install ack autojump coreutils findutils git openssl zsh cowsay zplug
 
 exit 0

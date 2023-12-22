@@ -1,101 +1,53 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
-# shortcut to this dotfiles path is $ZSH
-export ZSH=$HOME/.dotfiles
+#!/bin/zsh
+# shortcut to this dotfiles path is $DOTFILES
+export DOTFILES="$HOME/.dotfiles"
 
-######################################## Antigen ########################################
+# your project folder that we can `c [tab]` to
+export PROJECTS="$HOME/Code"
 
-source "$HOME/.antigen/antigen.zsh"
+# your default editor
+export EDITOR='vim'
+export VEDITOR='code'
 
-# Load the oh-my-zsh
-antigen use oh-my-zsh
-
-# Bundles from the default repo (robbyrussell's oh-my-zsh).
-antigen bundle autojump
-antigen bundle extract
-antigen bundle osx
-
-# Done
-antigen apply
-
-######################################## Zplug #######################################
-export ZPLUG_HOME=/usr/local/opt/zplug
-source $ZPLUG_HOME/init.zsh
-
-zplug "zsh-users/zsh-history-substring-search"
-zplug "zsh-users/zsh-completions"
-zplug "zsh-users/zsh-autosuggestions"
-
-# Set the priority when loading
-# e.g., zsh-syntax-highlighting must be loaded
-# after executing compinit command and sourcing other plugins
-# (If the defer tag is given 2 or above, run after compinit command)
-zplug "zsh-users/zsh-syntax-highlighting", defer:2
-
-zplug "djui/alias-tips"
-
-# Theme
-zplug 'jxc/zsh-theme', as:theme
-
-# Install plugins if there are plugins that have not been installed
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
-
-# Then, source plugins and add commands to $PATH
-zplug load
-
-######################################## Dotfiles #######################################
-
-# use .localrc for SUPER SECRET CRAP that you don't
-# want in your public, versioned repo.
-if [[ -a ~/.localrc ]]
+# env vars
+if [[ -a ~/.env-vars ]]
 then
-  source ~/.localrc
+  source ~/.env-vars
 fi
 
 # all of our zsh files
 typeset -U config_files
-config_files=($ZSH/**/*.zsh)
+config_files=($DOTFILES/*/*.zsh)
 
 # load the path files
-for file in ${(M)config_files:#*/path.zsh}
-do
-  source $file
+for file in ${(M)config_files:#*/path.zsh}; do
+  source "$file"
 done
+
+# load antibody plugins
+source ~/.zsh_plugins.sh
 
 # load everything but the path and completion files
-for file in ${${config_files:#*/path.zsh}:#*/completion.zsh}
-do
-  source $file
+for file in ${${config_files:#*/path.zsh}:#*/completion.zsh}; do
+  source "$file"
 done
 
-# initialize autocomplete here, otherwise functions won't be loaded
-autoload -U compinit
-compinit
+autoload -Uz compinit
+typeset -i updated_at=$(date +'%j' -r ~/.zcompdump 2>/dev/null || stat -f '%Sm' -t '%j' ~/.zcompdump 2>/dev/null)
+if [ $(date +'%j') != $updated_at ]; then
+  compinit -i
+else
+  compinit -C -i
+fi
 
 # load every completion after autocomplete loads
-for file in ${(M)config_files:#*/completion.zsh}
-do
-  source $file
+for file in ${(M)config_files:#*/completion.zsh}; do
+  source "$file"
 done
 
-unset config_files
+unset config_files updated_at
 
- [[ -s $(brew --prefix)/etc/profile.d/autojump.sh ]] && . $(brew --prefix)/etc/profile.d/autojump.sh
- # make autojumping TOO easy!
- j() {
-     result=`autojump $@`
-     if [ "$result" = "." ]
-     then
-     	echo "Unable to find a jump for \"$@\" :( :( :("
-     else
-     	cd $result
-     fi
- }
-
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+# use .localrc for SUPER SECRET CRAP that you don't
+# want in your public, versioned repo.
+# shellcheck disable=SC1090
+[ -f ~/.localrc ] && . ~/.localrc
