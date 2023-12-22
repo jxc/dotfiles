@@ -64,7 +64,7 @@ function current_repository() {
   echo $(git remote -v | cut -d':' -f 2)
 }
 
-unction g.currentBranch {
+function g.currentBranch {
   br=`git branch | grep "*"`
   echo ${br/* /}
 }
