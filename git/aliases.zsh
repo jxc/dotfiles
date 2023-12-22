@@ -35,16 +35,6 @@ gi() {
 	curl -s "https://www.gitignore.io/api/$*"
 }
 
-# these aliases take advantage of the previous function
-alias ggpull='git pull origin $(current_branch)'
-compdef ggpull=git
-alias ggpur='git pull --rebase origin $(current_branch)'
-compdef ggpur=git
-alias ggpush='git push origin $(current_branch)'
-compdef ggpush=git
-alias ggpnp='git pull origin $(current_branch) && git push origin $(current_branch)'
-compdef ggpnp=git
-
 # Pretty log messages
 function _git_log_prettily(){
   if ! [ -z $1 ]; then
@@ -52,7 +42,6 @@ function _git_log_prettily(){
   fi
 }
 alias glp="_git_log_prettily"
-compdef _git glp=git-log
 
 # Find lost shit
 alias g_findDeletedFiles="git log --diff-filter=D —summary"
