@@ -1,5 +1,4 @@
 tap "homebrew/bundle"
-tap "homebrew/core"
 
 # Replace outdated system libraries
 brew 'git'
