@@ -16,3 +16,4 @@ brew 'jenv'
 brew 'fzf'
 brew 'asdf'
 brew 'gh'
+cask "bruno"
