@@ -30,6 +30,7 @@ alias gstd='git stash drop'
 alias glol="git log  --color --graph --pretty=format:'%Cred%h%Creset%x09%C(yellow)%d%Creset %s %C(cyan)(%cr) %C(blue)[%an]%Creset' --abbrev-commit"
 alias g_addAllAndCommit="ga .; gcmsg"
 alias g_amend_all="ga .; g commit --amend --no-edit"
+alias grbi="git rebase -i"
 alias grbc="git rebase --continue"
 alias grba="git rebase --abort"
 
