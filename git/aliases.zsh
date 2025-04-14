@@ -86,10 +86,14 @@ function g_rebase_me() {
 }
 
 function g_make_branch() {
-  input=$@
-  result=${input// /-}
-  gco -b $result
-}
+  # Join all arguments into a single string
+  local input="$*"
+  # Remove 'git checkout -b ' prefix if it exists
+  input=${input#"git checkout -b "}
+  # Replace spaces with hyphens and limit to 50 characters
+  local result=$(echo "${input// /-}" | cut -c1-50)
+  gco -b "$result"
+} 
 
 #######################
 # NEW FANCY FZF STUFF #
