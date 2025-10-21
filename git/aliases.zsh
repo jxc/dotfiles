@@ -1,6 +1,6 @@
 alias g='git'
 alias gst='git status -sb'
-alias gl='git pull --prune'
+alias gl='git pull'
 alias glog="git log --graph --decorate --oneline --abbrev-commit"
 alias glga="glog --all"
 alias gp='git push origin HEAD'
