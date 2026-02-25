@@ -19,9 +19,9 @@ SSH_PORT=22
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
-info()    { printf "\r  [ \033[00;34m..\033[0m ] %s\n" "$1"; }
-success() { printf "\r\033[2K  [ \033[00;32mOK\033[0m ] %s\n" "$1"; }
-fail()    { printf "\r\033[2K  [\033[0;31mFAIL\033[0m] %s\n" "$1"; exit 1; }
+info()    { printf "\r  [ \033[00;34m..\033[0m ] %s\n" "$1" >&2; }
+success() { printf "\r\033[2K  [ \033[00;32mOK\033[0m ] %s\n" "$1" >&2; }
+fail()    { printf "\r\033[2K  [\033[0;31mFAIL\033[0m] %s\n" "$1" >&2; exit 1; }
 
 cleanup() {
   info "cleaning up VM '$VM_NAME'"
@@ -34,14 +34,34 @@ get_vm_ip() {
   tart ip "$VM_NAME" 2>/dev/null
 }
 
+wait_for_vm_boot() {
+  local max_attempts=24
+  local attempt=0
+
+  info "waiting for VM to boot and get an IP address"
+  while [ "$attempt" -lt "$max_attempts" ]; do
+    local ip
+    ip="$(get_vm_ip)" || true
+    if [ -n "$ip" ]; then
+      echo "$ip"
+      return 0
+    fi
+    attempt=$((attempt + 1))
+    sleep 5
+  done
+  fail "VM did not get an IP address after $((max_attempts * 5)) seconds"
+}
+
 wait_for_ssh() {
   local ip="$1"
-  local max_attempts=60
+  local max_attempts=36
   local attempt=0
 
   info "waiting for SSH to become ready at $ip"
   while [ "$attempt" -lt "$max_attempts" ]; do
     if nc -z -w 2 "$ip" "$SSH_PORT" 2>/dev/null; then
+      # Give sshd a moment to fully initialize after port opens
+      sleep 2
       success "SSH is ready"
       return 0
     fi
@@ -59,10 +79,12 @@ ssh_cmd() {
   local cmd="$*"
 
   expect -c "
+    log_user 1
     set timeout 600
-    spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $VM_USER@$ip \"$cmd\"
+    spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 $VM_USER@$ip \"$cmd\"
     expect {
-      \"*password*\" { send \"$VM_PASS\r\"; exp_continue }
+      -re \"(P|p)assword:\" { send \"$VM_PASS\r\"; exp_continue }
+      timeout { puts \"ERROR: ssh timed out\"; exit 1 }
       eof
     }
     catch wait result
@@ -70,22 +92,66 @@ ssh_cmd() {
   "
 }
 
-# Copy a file/directory into the VM using scp + expect
+# Copy a file into the VM using scp + expect
 scp_to_vm() {
   local ip="$1"
   local src="$2"
   local dst="$3"
 
   expect -c "
+    log_user 1
     set timeout 600
-    spawn scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r \"$src\" $VM_USER@$ip:\"$dst\"
+    spawn scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=10 \"$src\" $VM_USER@$ip:$dst
     expect {
-      \"*password*\" { send \"$VM_PASS\r\"; exp_continue }
+      -re \"(P|p)assword:\" { send \"$VM_PASS\r\"; exp_continue }
+      timeout { puts \"ERROR: scp timed out\"; exit 1 }
       eof
     }
     catch wait result
     exit [lindex \$result 3]
   "
+}
+
+# ─── VM Setup (shared between test and shell) ────────────────────────────────
+
+# Sets VM_IP as a side effect (no subshell, so tart run & stays in main process group)
+setup_vm() {
+  info "cloning base image to '$VM_NAME'"
+  tart clone "$LOCAL_IMAGE" "$VM_NAME"
+  success "VM cloned"
+
+  info "starting VM headless with dotfiles shared directory"
+  tart run --no-graphics --dir="dotfiles:$DOTFILES_ROOT" "$VM_NAME" &
+
+  VM_IP="$(wait_for_vm_boot)"
+  info "VM IP: $VM_IP"
+
+  wait_for_ssh "$VM_IP"
+
+  info "cloning dotfiles repo from GitHub"
+  local repo_url
+  repo_url="$(git -C "$DOTFILES_ROOT" remote get-url origin)"
+  # Convert SSH URL to HTTPS so the VM can clone without SSH keys
+  repo_url="${repo_url/git@github.com:/https://github.com/}"
+  ssh_cmd "$VM_IP" "git clone $repo_url ~/.dotfiles"
+  success "repo cloned"
+
+  info "overlaying local changes into VM"
+  local tarball="/tmp/dotfiles-vm-$$.tar.gz"
+  tar czf "$tarball" -C "$DOTFILES_ROOT" --exclude .git .
+  # shellcheck disable=SC2088
+  scp_to_vm "$VM_IP" "$tarball" "~/dotfiles.tar.gz"
+  rm -f "$tarball"
+  ssh_cmd "$VM_IP" "tar xzf ~/dotfiles.tar.gz -C ~/.dotfiles && rm ~/dotfiles.tar.gz"
+  ssh_cmd "$VM_IP" "git -C ~/.dotfiles add -A"
+  ssh_cmd "$VM_IP" "git -C ~/.dotfiles commit --allow-empty -m local-changes"
+  success "local changes applied"
+
+  info "pre-seeding git config to skip interactive prompts"
+  ssh_cmd "$VM_IP" "git config --global user.name 'Test User'"
+  ssh_cmd "$VM_IP" "git config --global user.email 'test@dotfiles.local'"
+  ssh_cmd "$VM_IP" "git config --global dotfiles.managed true"
+  success "git config seeded"
 }
 
 # ─── Subcommands ──────────────────────────────────────────────────────────────
@@ -105,7 +171,8 @@ cmd_setup() {
     success "base image '$LOCAL_IMAGE' already exists"
   else
     tart pull "$BASE_IMAGE"
-    success "base image pulled"
+    tart clone "$BASE_IMAGE" "$LOCAL_IMAGE"
+    success "base image pulled and cloned to '$LOCAL_IMAGE'"
   fi
 }
 
@@ -116,38 +183,10 @@ cmd_test() {
 
   trap cleanup EXIT
 
-  info "cloning base image to '$VM_NAME'"
-  tart clone "$LOCAL_IMAGE" "$VM_NAME"
-  success "VM cloned"
-
-  info "starting VM headless with dotfiles shared directory"
-  tart run --no-graphics --dir="dotfiles:$DOTFILES_ROOT" "$VM_NAME" &
-  local vm_pid=$!
-  sleep 10
-
-  local ip
-  ip="$(get_vm_ip)"
-  if [ -z "$ip" ]; then
-    fail "could not get VM IP address"
-  fi
-  info "VM IP: $ip"
-
-  wait_for_ssh "$ip"
-
-  info "copying dotfiles into VM"
-  ssh_cmd "$ip" "mkdir -p ~/.dotfiles"
-  # shellcheck disable=SC2088
-  scp_to_vm "$ip" "$DOTFILES_ROOT/." "~/.dotfiles/"
-  success "dotfiles copied"
-
-  info "pre-seeding git config to skip interactive prompts"
-  ssh_cmd "$ip" "git config --global user.name 'Test User'"
-  ssh_cmd "$ip" "git config --global user.email 'test@dotfiles.local'"
-  ssh_cmd "$ip" "git config --global dotfiles.managed true"
-  success "git config seeded"
+  setup_vm
 
   info "running bootstrap"
-  ssh_cmd "$ip" "cd ~/.dotfiles && ./script/bootstrap" || fail "bootstrap failed"
+  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/bootstrap" || fail "bootstrap failed"
   success "bootstrap completed"
 
   info "running verification checks"
@@ -156,7 +195,7 @@ cmd_test() {
   # Check symlinks
   local symlinks=(".asdfrc" ".gitignore" ".gemrc" ".vimrc" ".Brewfile" ".zshrc")
   for link in "${symlinks[@]}"; do
-    if ssh_cmd "$ip" "test -L ~/$link" 2>/dev/null; then
+    if ssh_cmd "$VM_IP" "test -L ~/$link" 2>/dev/null; then
       success "symlink: ~/$link"
     else
       fail="symlink missing: ~/$link"
@@ -166,7 +205,7 @@ cmd_test() {
   done
 
   # Check Homebrew installed
-  if ssh_cmd "$ip" "/opt/homebrew/bin/brew --version" 2>/dev/null; then
+  if ssh_cmd "$VM_IP" "/opt/homebrew/bin/brew --version" 2>/dev/null; then
     success "homebrew installed"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] homebrew not installed\n"
@@ -176,7 +215,7 @@ cmd_test() {
   # Check key brew packages
   local packages=("git" "diff-so-fancy" "shellcheck")
   for pkg in "${packages[@]}"; do
-    if ssh_cmd "$ip" "/opt/homebrew/bin/brew list $pkg" 2>/dev/null; then
+    if ssh_cmd "$VM_IP" "/opt/homebrew/bin/brew list $pkg" 2>/dev/null; then
       success "brew package: $pkg"
     else
       printf "\r\033[2K  [\033[0;31mFAIL\033[0m] brew package missing: %s\n" "$pkg"
@@ -185,7 +224,7 @@ cmd_test() {
   done
 
   # Check git config
-  if ssh_cmd "$ip" "git config --global --get core.pager | grep -q diff-so-fancy" 2>/dev/null; then
+  if ssh_cmd "$VM_IP" "git config --global --get core.pager | grep -q diff-so-fancy" 2>/dev/null; then
     success "git core.pager uses diff-so-fancy"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] git core.pager not set to diff-so-fancy\n"
@@ -193,7 +232,7 @@ cmd_test() {
   fi
 
   # Check antidote
-  if ssh_cmd "$ip" "test -d ~/.antidote || command -v antidote" 2>/dev/null; then
+  if ssh_cmd "$VM_IP" "test -d ~/.antidote || command -v antidote" 2>/dev/null; then
     success "antidote installed"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] antidote not installed\n"
@@ -201,7 +240,7 @@ cmd_test() {
   fi
 
   # Check asdf
-  if ssh_cmd "$ip" "test -d ~/.asdf" 2>/dev/null; then
+  if ssh_cmd "$VM_IP" "test -d ~/.asdf" 2>/dev/null; then
     success "asdf installed"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] asdf not installed\n"
@@ -209,7 +248,7 @@ cmd_test() {
   fi
 
   # Check crontab
-  if ssh_cmd "$ip" "crontab -l 2>/dev/null | grep -q dot_update" 2>/dev/null; then
+  if ssh_cmd "$VM_IP" "crontab -l 2>/dev/null | grep -q dot_update" 2>/dev/null; then
     success "crontab contains dot_update"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] crontab missing dot_update entry\n"
@@ -222,9 +261,6 @@ cmd_test() {
   else
     fail "$failures verification check(s) failed"
   fi
-
-  # cleanup runs via trap
-  kill "$vm_pid" 2>/dev/null || true
 }
 
 cmd_shell() {
@@ -234,39 +270,13 @@ cmd_shell() {
 
   trap cleanup EXIT
 
-  info "cloning base image to '$VM_NAME'"
-  tart clone "$LOCAL_IMAGE" "$VM_NAME"
-  success "VM cloned"
-
-  info "starting VM headless with dotfiles shared directory"
-  tart run --no-graphics --dir="dotfiles:$DOTFILES_ROOT" "$VM_NAME" &
-  sleep 10
-
-  local ip
-  ip="$(get_vm_ip)"
-  if [ -z "$ip" ]; then
-    fail "could not get VM IP address"
-  fi
-
-  wait_for_ssh "$ip"
-
-  info "copying dotfiles into VM"
-  ssh_cmd "$ip" "mkdir -p ~/.dotfiles"
-  # shellcheck disable=SC2088
-  scp_to_vm "$ip" "$DOTFILES_ROOT/." "~/.dotfiles/"
-  success "dotfiles copied"
-
-  info "pre-seeding git config to skip interactive prompts"
-  ssh_cmd "$ip" "git config --global user.name 'Test User'"
-  ssh_cmd "$ip" "git config --global user.email 'test@dotfiles.local'"
-  ssh_cmd "$ip" "git config --global dotfiles.managed true"
-  success "git config seeded"
+  setup_vm
 
   echo ""
   echo "  ┌─────────────────────────────────────────────────────────┐"
   echo "  │  VM is ready! Connect with:                             │"
   echo "  │                                                         │"
-  printf "  │  ssh %s@%-46s │\n" "$VM_USER" "$ip"
+  printf "  │  ssh %s@%-46s │\n" "$VM_USER" "$VM_IP"
   echo "  │  password: $VM_PASS                                     │"
   echo "  │                                                         │"
   echo "  │  Dotfiles are at: ~/.dotfiles                           │"
