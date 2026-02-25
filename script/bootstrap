@@ -66,7 +66,7 @@ setup_gitconfig() {
 
 setup_homebrew() {
 	info 'setup homebrew'
-	"$DOTFILES"/homebrew/install.sh
+	"$DOTFILES_ROOT"/homebrew/install.sh
 	success 'homebrew'
 }
 
@@ -102,8 +102,8 @@ find_zsh() {
 }
 
 setup_gitconfig
-setup_homebrew
 install_dotfiles
+setup_homebrew
 
 info "installing dependencies"
 if ./bin/dot_update; then
