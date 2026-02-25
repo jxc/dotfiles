@@ -10,7 +10,7 @@ A topic-based dotfiles repository for macOS, inspired by Holman's dotfiles. Each
 
 - `./script/bootstrap` — Full initial setup (git config, homebrew, symlinks, installers)
 - `./script/install` — Run all `install.sh` scripts found in topic directories
-- `./bin/dot_update` — Pull latest, update submodules, re-run all installers, update antibody plugins
+- `./bin/dot_update` — Pull latest, update submodules, re-run all installers, update antidote plugins
 
 - `make lint` — Run shellcheck on all shell scripts (`.sh` files, `script/*`, `bin/*`)
 
