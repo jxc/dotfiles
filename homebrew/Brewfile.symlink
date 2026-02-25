@@ -13,4 +13,5 @@ brew 'diff-so-fancy'
 brew 'findutils'
 brew 'cowsay'
 brew 'jenv'
+brew 'shellcheck'
 

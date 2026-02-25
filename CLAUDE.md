@@ -12,7 +12,7 @@ A topic-based dotfiles repository for macOS, inspired by Holman's dotfiles. Each
 - `./script/install` — Run all `install.sh` scripts found in topic directories
 - `./bin/dot_update` — Pull latest, update submodules, re-run all installers, update antibody plugins
 
-There are no build, lint, or test commands — this is a configuration-only repo.
+- `make lint` — Run shellcheck on all shell scripts (`.sh` files, `script/*`, `bin/*`)
 
 ## Architecture
 
