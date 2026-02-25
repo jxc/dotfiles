@@ -13,4 +13,4 @@ vm-test:
 	./script/test-vm test
 
 vm-shell:
-	./script/test-vm shell
+	-./script/test-vm shell
