@@ -1,0 +1,297 @@
+#!/bin/bash
+#
+# test-vm — Sandboxed dotfiles testing with Tart macOS VMs
+#
+# Usage:
+#   script/test-vm setup   — Install Tart and pull macOS base image
+#   script/test-vm test    — Automated: clone VM, run bootstrap, verify, cleanup
+#   script/test-vm shell   — Interactive: clone VM, print SSH info, wait for Ctrl-C
+
+set -euo pipefail
+
+DOTFILES_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+BASE_IMAGE="ghcr.io/cirruslabs/macos-sequoia-base:latest"
+LOCAL_IMAGE="macos-sequoia-base"
+VM_NAME="dotfiles-test-$$"
+VM_USER="admin"
+VM_PASS="admin"
+SSH_PORT=22
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+info()    { printf "\r  [ \033[00;34m..\033[0m ] %s\n" "$1"; }
+success() { printf "\r\033[2K  [ \033[00;32mOK\033[0m ] %s\n" "$1"; }
+fail()    { printf "\r\033[2K  [\033[0;31mFAIL\033[0m] %s\n" "$1"; exit 1; }
+
+cleanup() {
+  info "cleaning up VM '$VM_NAME'"
+  tart stop "$VM_NAME" 2>/dev/null || true
+  tart delete "$VM_NAME" 2>/dev/null || true
+  success "VM cleaned up"
+}
+
+get_vm_ip() {
+  tart ip "$VM_NAME" 2>/dev/null
+}
+
+wait_for_ssh() {
+  local ip="$1"
+  local max_attempts=60
+  local attempt=0
+
+  info "waiting for SSH to become ready at $ip"
+  while [ "$attempt" -lt "$max_attempts" ]; do
+    if nc -z -w 2 "$ip" "$SSH_PORT" 2>/dev/null; then
+      success "SSH is ready"
+      return 0
+    fi
+    attempt=$((attempt + 1))
+    sleep 5
+  done
+  fail "SSH did not become ready after $((max_attempts * 5)) seconds"
+}
+
+# Run a command over SSH inside the VM using expect for password auth.
+# expect ships with macOS — no extra dependencies needed.
+ssh_cmd() {
+  local ip="$1"
+  shift
+  local cmd="$*"
+
+  expect -c "
+    set timeout 600
+    spawn ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $VM_USER@$ip \"$cmd\"
+    expect {
+      \"*password*\" { send \"$VM_PASS\r\"; exp_continue }
+      eof
+    }
+    catch wait result
+    exit [lindex \$result 3]
+  "
+}
+
+# Copy a file/directory into the VM using scp + expect
+scp_to_vm() {
+  local ip="$1"
+  local src="$2"
+  local dst="$3"
+
+  expect -c "
+    set timeout 600
+    spawn scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r \"$src\" $VM_USER@$ip:\"$dst\"
+    expect {
+      \"*password*\" { send \"$VM_PASS\r\"; exp_continue }
+      eof
+    }
+    catch wait result
+    exit [lindex \$result 3]
+  "
+}
+
+# ─── Subcommands ──────────────────────────────────────────────────────────────
+
+cmd_setup() {
+  info "checking for Tart"
+  if ! command -v tart >/dev/null 2>&1; then
+    info "installing Tart via Homebrew"
+    brew install cirruslabs/cli/tart
+    success "Tart installed"
+  else
+    success "Tart already installed"
+  fi
+
+  info "pulling base image (this may take a while on first run)"
+  if tart list | grep -q "$LOCAL_IMAGE"; then
+    success "base image '$LOCAL_IMAGE' already exists"
+  else
+    tart pull "$BASE_IMAGE"
+    success "base image pulled"
+  fi
+}
+
+cmd_test() {
+  if ! command -v tart >/dev/null 2>&1; then
+    fail "Tart not found. Run 'make vm-setup' first."
+  fi
+
+  trap cleanup EXIT
+
+  info "cloning base image to '$VM_NAME'"
+  tart clone "$LOCAL_IMAGE" "$VM_NAME"
+  success "VM cloned"
+
+  info "starting VM headless with dotfiles shared directory"
+  tart run --no-graphics --dir="dotfiles:$DOTFILES_ROOT" "$VM_NAME" &
+  local vm_pid=$!
+  sleep 10
+
+  local ip
+  ip="$(get_vm_ip)"
+  if [ -z "$ip" ]; then
+    fail "could not get VM IP address"
+  fi
+  info "VM IP: $ip"
+
+  wait_for_ssh "$ip"
+
+  info "copying dotfiles into VM"
+  ssh_cmd "$ip" "mkdir -p ~/.dotfiles"
+  # shellcheck disable=SC2088
+  scp_to_vm "$ip" "$DOTFILES_ROOT/." "~/.dotfiles/"
+  success "dotfiles copied"
+
+  info "pre-seeding git config to skip interactive prompts"
+  ssh_cmd "$ip" "git config --global user.name 'Test User'"
+  ssh_cmd "$ip" "git config --global user.email 'test@dotfiles.local'"
+  ssh_cmd "$ip" "git config --global dotfiles.managed true"
+  success "git config seeded"
+
+  info "running bootstrap"
+  ssh_cmd "$ip" "cd ~/.dotfiles && ./script/bootstrap" || fail "bootstrap failed"
+  success "bootstrap completed"
+
+  info "running verification checks"
+  local failures=0
+
+  # Check symlinks
+  local symlinks=(".asdfrc" ".gitignore" ".gemrc" ".vimrc" ".Brewfile" ".zshrc")
+  for link in "${symlinks[@]}"; do
+    if ssh_cmd "$ip" "test -L ~/$link" 2>/dev/null; then
+      success "symlink: ~/$link"
+    else
+      fail="symlink missing: ~/$link"
+      printf "\r\033[2K  [\033[0;31mFAIL\033[0m] %s\n" "$fail"
+      failures=$((failures + 1))
+    fi
+  done
+
+  # Check Homebrew installed
+  if ssh_cmd "$ip" "/opt/homebrew/bin/brew --version" 2>/dev/null; then
+    success "homebrew installed"
+  else
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] homebrew not installed\n"
+    failures=$((failures + 1))
+  fi
+
+  # Check key brew packages
+  local packages=("git" "diff-so-fancy" "shellcheck")
+  for pkg in "${packages[@]}"; do
+    if ssh_cmd "$ip" "/opt/homebrew/bin/brew list $pkg" 2>/dev/null; then
+      success "brew package: $pkg"
+    else
+      printf "\r\033[2K  [\033[0;31mFAIL\033[0m] brew package missing: %s\n" "$pkg"
+      failures=$((failures + 1))
+    fi
+  done
+
+  # Check git config
+  if ssh_cmd "$ip" "git config --global --get core.pager | grep -q diff-so-fancy" 2>/dev/null; then
+    success "git core.pager uses diff-so-fancy"
+  else
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] git core.pager not set to diff-so-fancy\n"
+    failures=$((failures + 1))
+  fi
+
+  # Check antidote
+  if ssh_cmd "$ip" "test -d ~/.antidote || command -v antidote" 2>/dev/null; then
+    success "antidote installed"
+  else
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] antidote not installed\n"
+    failures=$((failures + 1))
+  fi
+
+  # Check asdf
+  if ssh_cmd "$ip" "test -d ~/.asdf" 2>/dev/null; then
+    success "asdf installed"
+  else
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] asdf not installed\n"
+    failures=$((failures + 1))
+  fi
+
+  # Check crontab
+  if ssh_cmd "$ip" "crontab -l 2>/dev/null | grep -q dot_update" 2>/dev/null; then
+    success "crontab contains dot_update"
+  else
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] crontab missing dot_update entry\n"
+    failures=$((failures + 1))
+  fi
+
+  echo ""
+  if [ "$failures" -eq 0 ]; then
+    success "all verification checks passed"
+  else
+    fail "$failures verification check(s) failed"
+  fi
+
+  # cleanup runs via trap
+  kill "$vm_pid" 2>/dev/null || true
+}
+
+cmd_shell() {
+  if ! command -v tart >/dev/null 2>&1; then
+    fail "Tart not found. Run 'make vm-setup' first."
+  fi
+
+  trap cleanup EXIT
+
+  info "cloning base image to '$VM_NAME'"
+  tart clone "$LOCAL_IMAGE" "$VM_NAME"
+  success "VM cloned"
+
+  info "starting VM headless with dotfiles shared directory"
+  tart run --no-graphics --dir="dotfiles:$DOTFILES_ROOT" "$VM_NAME" &
+  sleep 10
+
+  local ip
+  ip="$(get_vm_ip)"
+  if [ -z "$ip" ]; then
+    fail "could not get VM IP address"
+  fi
+
+  wait_for_ssh "$ip"
+
+  info "copying dotfiles into VM"
+  ssh_cmd "$ip" "mkdir -p ~/.dotfiles"
+  # shellcheck disable=SC2088
+  scp_to_vm "$ip" "$DOTFILES_ROOT/." "~/.dotfiles/"
+  success "dotfiles copied"
+
+  info "pre-seeding git config to skip interactive prompts"
+  ssh_cmd "$ip" "git config --global user.name 'Test User'"
+  ssh_cmd "$ip" "git config --global user.email 'test@dotfiles.local'"
+  ssh_cmd "$ip" "git config --global dotfiles.managed true"
+  success "git config seeded"
+
+  echo ""
+  echo "  ┌─────────────────────────────────────────────────────────┐"
+  echo "  │  VM is ready! Connect with:                             │"
+  echo "  │                                                         │"
+  printf "  │  ssh %s@%-46s │\n" "$VM_USER" "$ip"
+  echo "  │  password: $VM_PASS                                     │"
+  echo "  │                                                         │"
+  echo "  │  Dotfiles are at: ~/.dotfiles                           │"
+  echo "  │  Shared mount at: /Volumes/My Shared Files/dotfiles/    │"
+  echo "  │                                                         │"
+  echo "  │  Press Ctrl-C to stop and delete the VM                 │"
+  echo "  └─────────────────────────────────────────────────────────┘"
+  echo ""
+
+  # Wait for user interrupt
+  wait
+}
+
+# ─── Main ─────────────────────────────────────────────────────────────────────
+
+case "${1:-}" in
+  setup) cmd_setup ;;
+  test)  cmd_test ;;
+  shell) cmd_shell ;;
+  *)
+    echo "Usage: script/test-vm {setup|test|shell}"
+    echo ""
+    echo "  setup  — Install Tart and pull macOS base image"
+    echo "  test   — Automated: clone VM, run bootstrap, verify, cleanup"
+    echo "  shell  — Interactive: clone VM, print SSH info, wait for Ctrl-C"
+    exit 1
+    ;;
+esac

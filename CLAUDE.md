@@ -13,6 +13,9 @@ A topic-based dotfiles repository for macOS, inspired by Holman's dotfiles. Each
 - `./bin/dot_update` — Pull latest, update submodules, re-run all installers, update antidote plugins
 
 - `make lint` — Run shellcheck on all shell scripts (`.sh` files, `script/*`, `bin/*`)
+- `make vm-setup` — One-time: install Tart, pull macOS Sequoia base image
+- `make vm-test` — Automated: clone fresh VM, run bootstrap, verify results, cleanup
+- `make vm-shell` — Interactive: clone fresh VM, print SSH command for manual exploration
 
 ## Architecture
 
