@@ -1,12 +1,10 @@
-tap "homebrew/bundle"
-tap "homebrew/core"
-
 # Replace outdated system libraries
 brew 'git'
 brew 'openssl'
 brew 'zsh'
 
 # Productivity
+brew 'asdf'
 brew 'ack'
 brew 'coreutils'
 brew 'diff-so-fancy'
