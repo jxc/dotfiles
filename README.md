@@ -14,7 +14,7 @@ Bootstrap will:
 1. Set up your git author name/email (interactive, first run only)
 2. Symlink all `*.symlink` files into `$HOME` (existing files backed up with `.backup` suffix)
 3. Install Homebrew and everything in the `Brewfile`
-4. Run all topic `install.sh` scripts (antidote, asdf, fonts, git config, autoupdate cron)
+4. Run all topic `install.sh` scripts (antidote, asdf, git config, autoupdate cron)
 
 ### macOS defaults
 
