@@ -112,6 +112,7 @@ make verify      # run post-bootstrap verification checks
 make vm-setup    # one-time: install Tart, pull macOS Tahoe base image
 make vm-test     # automated: clone VM, run bootstrap, verify results, cleanup
 make vm-shell    # interactive: clone VM, print SSH info for manual exploration
+make vm-ready    # pre-bootstrapped: clone VM, bootstrap + defaults, print SSH info
 make vm-cleanup  # stop and delete all leftover dotfiles-test-* VMs
 ```
 

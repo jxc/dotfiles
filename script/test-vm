@@ -6,6 +6,7 @@
 #   script/test-vm setup   — Install Tart and pull macOS base image
 #   script/test-vm test    — Automated: clone VM, run bootstrap, verify, cleanup
 #   script/test-vm shell   — Interactive: clone VM, print SSH info, wait for Ctrl-C
+#   script/test-vm ready   — Pre-bootstrapped: clone VM, bootstrap, defaults, wait
 
 set -euo pipefail
 
@@ -112,6 +113,38 @@ scp_to_vm() {
   "
 }
 
+run_bootstrap() {
+  info "running bootstrap"
+  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/bootstrap" || fail "bootstrap failed"
+  success "bootstrap completed"
+}
+
+run_set_defaults() {
+  info "running macOS defaults"
+  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./macos/set-defaults.sh 2>/tmp/set-defaults-stderr.log"
+  if ssh_cmd "$VM_IP" "test -s /tmp/set-defaults-stderr.log"; then
+    ssh_cmd "$VM_IP" "cat /tmp/set-defaults-stderr.log" >&2
+    fail "set-defaults.sh produced errors on stderr"
+  fi
+  success "macOS defaults applied (no errors)"
+}
+
+print_ssh_banner() {
+  echo ""
+  echo "  ┌─────────────────────────────────────────────────────────┐"
+  echo "  │  VM is ready! Connect with:                             │"
+  echo "  │                                                         │"
+  printf "  │  ssh %s@%-46s │\n" "$VM_USER" "$VM_IP"
+  echo "  │  password: $VM_PASS                                     │"
+  echo "  │                                                         │"
+  echo "  │  Dotfiles are at: ~/.dotfiles                           │"
+  echo "  │  Shared mount at: /Volumes/My Shared Files/dotfiles/    │"
+  echo "  │                                                         │"
+  echo "  │  Press Ctrl-C to stop and delete the VM                 │"
+  echo "  └─────────────────────────────────────────────────────────┘"
+  echo ""
+}
+
 # ─── VM Setup (shared between test and shell) ────────────────────────────────
 
 # Sets VM_IP as a side effect (no subshell, so tart run & stays in main process group)
@@ -184,18 +217,8 @@ cmd_test() {
   trap cleanup EXIT
 
   setup_vm
-
-  info "running bootstrap"
-  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/bootstrap" || fail "bootstrap failed"
-  success "bootstrap completed"
-
-  info "running macOS defaults"
-  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./macos/set-defaults.sh 2>/tmp/set-defaults-stderr.log"
-  if ssh_cmd "$VM_IP" "test -s /tmp/set-defaults-stderr.log"; then
-    ssh_cmd "$VM_IP" "cat /tmp/set-defaults-stderr.log" >&2
-    fail "set-defaults.sh produced errors on stderr"
-  fi
-  success "macOS defaults applied (no errors)"
+  run_bootstrap
+  run_set_defaults
 
   info "running verification checks"
   ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/verify" || fail "verification failed"
@@ -209,22 +232,21 @@ cmd_shell() {
   trap cleanup EXIT
 
   setup_vm
+  print_ssh_banner
+  wait
+}
 
-  echo ""
-  echo "  ┌─────────────────────────────────────────────────────────┐"
-  echo "  │  VM is ready! Connect with:                             │"
-  echo "  │                                                         │"
-  printf "  │  ssh %s@%-46s │\n" "$VM_USER" "$VM_IP"
-  echo "  │  password: $VM_PASS                                     │"
-  echo "  │                                                         │"
-  echo "  │  Dotfiles are at: ~/.dotfiles                           │"
-  echo "  │  Shared mount at: /Volumes/My Shared Files/dotfiles/    │"
-  echo "  │                                                         │"
-  echo "  │  Press Ctrl-C to stop and delete the VM                 │"
-  echo "  └─────────────────────────────────────────────────────────┘"
-  echo ""
+cmd_ready() {
+  if ! command -v tart >/dev/null 2>&1; then
+    fail "Tart not found. Run 'make vm-setup' first."
+  fi
 
-  # Wait for user interrupt
+  trap cleanup EXIT
+
+  setup_vm
+  run_bootstrap
+  run_set_defaults
+  print_ssh_banner
   wait
 }
 
@@ -249,13 +271,15 @@ case "${1:-}" in
   setup)   cmd_setup ;;
   test)    cmd_test ;;
   shell)   cmd_shell ;;
+  ready)   cmd_ready ;;
   cleanup) cmd_cleanup ;;
   *)
-    echo "Usage: script/test-vm {setup|test|shell|cleanup}"
+    echo "Usage: script/test-vm {setup|test|shell|ready|cleanup}"
     echo ""
     echo "  setup    — Install Tart and pull macOS base image"
     echo "  test     — Automated: clone VM, run bootstrap, verify, cleanup"
     echo "  shell    — Interactive: clone VM, print SSH info, wait for Ctrl-C"
+    echo "  ready    — Pre-bootstrapped: clone VM, bootstrap, defaults, wait"
     echo "  cleanup  — Stop and delete all leftover dotfiles-test-* VMs"
     exit 1
     ;;
