@@ -43,6 +43,10 @@ The zsh loader (`zsh/zshrc.symlink`) auto-discovers files by naming convention a
 - `~/.env-vars` — Sourced early in zshrc for environment variables
 - `git/gitconfig.symlink.example` — Template; actual gitconfig is generated during bootstrap
 
+### Repository Assets
+
+- `.github/logo.png` — README header logo (referenced in README.md)
+
 ### Auto-Update
 
 A launchd agent (set by `autoupdate/install.sh`) runs `dot_update` every 2 hours, which pulls changes and re-runs installers.
