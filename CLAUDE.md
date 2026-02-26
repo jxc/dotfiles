@@ -16,6 +16,7 @@ A topic-based dotfiles repository for macOS, inspired by Holman's dotfiles. Each
 - `make vm-setup` — One-time: install Tart, pull macOS Sequoia base image
 - `make vm-test` — Automated: clone fresh VM, run bootstrap, verify results, cleanup
 - `make vm-shell` — Interactive: clone fresh VM, print SSH command for manual exploration
+- `make vm-cleanup` — Stop and delete all leftover `dotfiles-test-*` VMs
 
 ## Architecture
 
