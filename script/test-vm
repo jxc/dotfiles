@@ -223,32 +223,40 @@ cmd_test() {
     fi
   done
 
-  # Check git config
-  if ssh_cmd "$VM_IP" "git config --global --get core.pager | grep -q diff-so-fancy" 2>/dev/null; then
+  # Check git config (grep on host side — pipes inside ssh_cmd don't work reliably)
+  if ssh_cmd "$VM_IP" "git config --global --get core.pager" 2>&1 | grep -q diff-so-fancy; then
     success "git core.pager uses diff-so-fancy"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] git core.pager not set to diff-so-fancy\n"
     failures=$((failures + 1))
   fi
 
-  # Check antidote
-  if ssh_cmd "$VM_IP" "test -d ~/.antidote || command -v antidote" 2>/dev/null; then
+  # Check antidote (installed via brew, not ~/.antidote)
+  if ssh_cmd "$VM_IP" "/opt/homebrew/bin/brew list antidote" 2>/dev/null; then
     success "antidote installed"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] antidote not installed\n"
     failures=$((failures + 1))
   fi
 
-  # Check asdf
-  if ssh_cmd "$VM_IP" "test -d ~/.asdf" 2>/dev/null; then
+  # Check antidote plugins were generated
+  if ssh_cmd "$VM_IP" "test -s ~/.zsh_plugins.zsh" 2>/dev/null; then
+    success "antidote plugins generated (~/.zsh_plugins.zsh is non-empty)"
+  else
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] antidote plugins not generated (~/.zsh_plugins.zsh missing or empty)\n"
+    failures=$((failures + 1))
+  fi
+
+  # Check asdf (installed via brew, not ~/.asdf)
+  if ssh_cmd "$VM_IP" "/opt/homebrew/bin/brew list asdf" 2>/dev/null; then
     success "asdf installed"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] asdf not installed\n"
     failures=$((failures + 1))
   fi
 
-  # Check crontab
-  if ssh_cmd "$VM_IP" "crontab -l 2>/dev/null | grep -q dot_update" 2>/dev/null; then
+  # Check crontab (grep on host side — pipes inside ssh_cmd don't work reliably)
+  if ssh_cmd "$VM_IP" "crontab -l" 2>&1 | grep -q dot_update; then
     success "crontab contains dot_update"
   else
     printf "\r\033[2K  [\033[0;31mFAIL\033[0m] crontab missing dot_update entry\n"
