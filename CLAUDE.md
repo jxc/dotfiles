@@ -14,7 +14,7 @@ A topic-based dotfiles repository for macOS, inspired by Holman's dotfiles. Each
 
 - `make lint` — Run shellcheck on all shell scripts (`.sh` files, `script/*`, `bin/*`)
 - `make verify` — Run post-bootstrap verification checks (symlinks, packages, config)
-- `make vm-setup` — One-time: install Tart, pull macOS Sequoia base image
+- `make vm-setup` — One-time: install Tart, pull macOS Tahoe base image
 - `make vm-test` — Automated: clone fresh VM, run bootstrap, verify results, cleanup
 - `make vm-shell` — Interactive: clone fresh VM, print SSH command for manual exploration
 - `make vm-cleanup` — Stop and delete all leftover `dotfiles-test-*` VMs

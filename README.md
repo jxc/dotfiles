@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/tylerwolf/dotfiles/actions/workflows/ci.yml"><img src="https://github.com/tylerwolf/dotfiles/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/macOS-Sequoia-000000?logo=apple&logoColor=white" alt="macOS Sequoia">
+  <img src="https://img.shields.io/badge/macOS-Tahoe-000000?logo=apple&logoColor=white" alt="macOS Tahoe">
 </p>
 
 <p align="center">
@@ -109,7 +109,7 @@ Locally, you can verify a bootstrapped machine or test in a sandboxed VM:
 ```console
 make lint        # shellcheck all shell scripts
 make verify      # run post-bootstrap verification checks
-make vm-setup    # one-time: install Tart, pull macOS Sequoia base image
+make vm-setup    # one-time: install Tart, pull macOS Tahoe base image
 make vm-test     # automated: clone VM, run bootstrap, verify results, cleanup
 make vm-shell    # interactive: clone VM, print SSH info for manual exploration
 make vm-cleanup  # stop and delete all leftover dotfiles-test-* VMs

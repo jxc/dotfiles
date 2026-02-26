@@ -10,8 +10,8 @@
 set -euo pipefail
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
-BASE_IMAGE="ghcr.io/cirruslabs/macos-sequoia-base:latest"
-LOCAL_IMAGE="macos-sequoia-base"
+BASE_IMAGE="ghcr.io/cirruslabs/macos-tahoe-base:latest"
+LOCAL_IMAGE="macos-tahoe-base"
 VM_NAME="dotfiles-test-$$"
 VM_USER="admin"
 VM_PASS="admin"
