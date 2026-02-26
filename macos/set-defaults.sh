@@ -85,6 +85,29 @@ defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 echo "  › Disable the warning when changing a file extension"
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
+echo "  › Show all file extensions"
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+
+echo "  › Show hidden files"
+defaults write com.apple.finder AppleShowAllFiles -bool true
+
+echo "  › Avoid the creation of .DS_Store files on USB volumes"
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+#############################
+
+echo ""
+echo "› Dock:"
+
+echo "  › Don't automatically rearrange Spaces based on most recent use"
+defaults write com.apple.dock mru-spaces -bool false
+
+echo "  › Faster minimize animation (scale instead of genie)"
+defaults write com.apple.dock mineffect -string "scale"
+
+echo "  › Speed up Mission Control animations"
+defaults write com.apple.dock expose-animation-duration -float 0.1
+
 #############################
 
 echo ""
