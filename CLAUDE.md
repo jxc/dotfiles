@@ -59,5 +59,6 @@ Existing files are backed up with `.backup` suffix during symlink creation.
 ## Workflow Rules
 
 - **Use Make targets** when they exist (e.g., `make lint` not `shellcheck ...` directly)
+- **Lint and test before committing** — run `make lint` and `make vm-test` before every commit
 - **Update CLAUDE.md** whenever new commands are added or architecture materially changes
 - **Update README.md** whenever changes affect documented features, commands, or structure
