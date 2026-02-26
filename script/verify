@@ -32,7 +32,7 @@ else
 fi
 
 # Check key brew packages
-packages=("git" "git-delta" "shellcheck")
+packages=("git" "git-delta" "shellcheck" "atuin")
 for pkg in "${packages[@]}"; do
   if /opt/homebrew/bin/brew list "$pkg" >/dev/null 2>&1; then
     success "brew package: $pkg"

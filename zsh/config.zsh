@@ -37,14 +37,17 @@ setopt HIST_EXPIRE_DUPS_FIRST
 # dont ask for confirmation in rm globs*
 setopt RM_STAR_SILENT
 
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
+# atuin handles up/down arrow history search; only bind fallback without it
+if ! command -v atuin &>/dev/null; then
+  zle -N up-line-or-beginning-search
+  zle -N down-line-or-beginning-search
 
-# fuzzy find: start to type
-bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
-bindkey "$terminfo[kcud1]" down-line-or-beginning-search
-bindkey "$terminfo[cuu1]" up-line-or-beginning-search
-bindkey "$terminfo[cud1]" down-line-or-beginning-search
+  # fuzzy find: start to type
+  bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
+  bindkey "$terminfo[kcud1]" down-line-or-beginning-search
+  bindkey "$terminfo[cuu1]" up-line-or-beginning-search
+  bindkey "$terminfo[cud1]" down-line-or-beginning-search
+fi
 
 # backward and forward word with option+left/right
 bindkey '^[^[[D' backward-word
@@ -69,7 +72,7 @@ bindkey '^[[3;5~' backward-delete-word
 bindkey '^W' backward-delete-word
 # bindkey '^[[3~' backward-delete-word
 
-# fzf setup is in fzf/config.zsh; fall back to basic history search
-if ! command -v fzf &>/dev/null; then
+# fzf/atuin handle Ctrl+R; fall back to basic history search without either
+if ! command -v fzf &>/dev/null && ! command -v atuin &>/dev/null; then
 	bindkey '^R' history-incremental-search-backward
 fi

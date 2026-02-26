@@ -16,6 +16,7 @@ brew 'eza'          # modern ls with git awareness
 brew 'git-delta'    # better git diffs (replaces diff-so-fancy)
 brew 'zoxide'       # smarter cd (replaces z)
 brew 'fzf'          # fuzzy finder for everything
+brew 'atuin'        # better shell history (replaces zsh history)
 
 # Development tools
 brew 'asdf'
