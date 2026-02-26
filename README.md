@@ -1,66 +1,75 @@
-Forked from https://github.com/holman/dotfiles, borrows heavily from https://github.com/caarlos0/dotfiles
+# dotfiles
 
-## dotfiles
+My macOS dotfiles, built around topic directories. Forked from [holman/dotfiles](https://github.com/holman/dotfiles), borrows from [caarlos0/dotfiles](https://github.com/caarlos0/dotfiles).
 
-Your dotfiles are how you personalize your system. These are mine.
-
-## Installation
-
-### Dependencies
-
-First, make sure you have all those things installed:
-
-- `git`: to clone the repo
-- `curl`: to download some stuff
-- `tar`: to extract downloaded stuff
-- `zsh`: to actually run the dotfiles
-- `sudo`: some configs may need that
-
-### Install
-
-Then, run these steps:
+## Install
 
 ```console
-$ git clone git@github.com:tylerwolf/dotfiles.git ~/.dotfiles
-$ cd ~/.dotfiles
-$ ./script/bootstrap
-$ zsh # or just close and open your terminal again.
+git clone git@github.com:tylerwolf/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./script/bootstrap
 ```
 
-> All changed files will be backed up with a `.backup` suffix.
+Bootstrap will:
+1. Set up your git author name/email (interactive, first run only)
+2. Symlink all `*.symlink` files into `$HOME` (existing files backed up with `.backup` suffix)
+3. Install Homebrew and everything in the `Brewfile`
+4. Run all topic `install.sh` scripts (antidote, asdf, fonts, git config, autoupdate cron)
 
 ### macOS defaults
 
-You use it by running:
+Optionally apply preferred macOS system/Finder/Dock settings:
 
 ```console
-$DOTFILES/macos/set-defaults.sh
+./macos/set-defaults.sh
 ```
 
-And logging out and in again/restart.
+Requires a logout or restart to take full effect.
 
-## topical
+## How it works
 
-Everything's built around topic areas. If you're adding a new area to your
-forked dotfiles — say, "Java" — you can simply add a `java` directory and put
-files in there. Anything with an extension of `.zsh` will get automatically
-included into your shell. Anything with an extension of `.symlink` will get
-symlinked without extension into `$HOME` when you run `script/bootstrap`.
+Everything is organized into **topic directories** (e.g., `git/`, `ruby/`, `zsh/`). The zsh loader (`zsh/zshrc.symlink`) auto-discovers files by naming convention:
 
-## components
+| Pattern | When loaded | Purpose |
+|---------|------------|---------|
+| `path.zsh` | First | `$PATH` modifications |
+| `*.zsh` | Second | Config, aliases, functions |
+| `completion.zsh` | Last | Shell completions |
+| `install.sh` | On bootstrap/update | One-time setup for the topic |
+| `*.symlink` | On bootstrap | Symlinked to `$HOME/.filename` |
 
-There's a few special files in the hierarchy.
+**bin/** is added to `$PATH` — anything in there is available everywhere.
 
-- **bin/**: Anything in `bin/` will get added to your `$PATH` and be made
-  available everywhere.
-- **topic/\*.zsh**: Any files ending in `.zsh` get loaded into your
-  environment.
-- **topic/path.zsh**: Any file named `path.zsh` is loaded first and is
-  expected to setup `$PATH` or similar.
-- **topic/completion.zsh**: Any file named `completion.zsh` is loaded
-  last and is expected to setup autocomplete.
-- **topic/\*.symlink**: Any files ending in `*.symlink` get symlinked into
-  your `$HOME`. This is so you can keep all of those versioned in your dotfiles
-  but still keep those autoloaded files in your home directory. These get
-  symlinked in when you run `script/bootstrap`.
+To add a new topic, create a directory and drop in files following the conventions above.
+
+## Keeping up to date
+
+A cron job (installed by `autoupdate/install.sh`) runs `bin/dot_update` every 2 hours, which pulls the latest changes, updates submodules, re-runs all installers, and refreshes antidote plugins.
+
+## Testing
+
+Changes can be tested in a sandboxed macOS VM using [Tart](https://tart.run):
+
+```console
+make vm-setup    # one-time: install Tart, pull macOS Sequoia base image
+make vm-test     # automated: clone VM, run bootstrap, verify results, cleanup
+make vm-shell    # interactive: clone VM, print SSH info for manual exploration
+make vm-cleanup  # stop and delete all leftover dotfiles-test-* VMs
+```
+
+## Local customization
+
+These files are not checked in and won't be overwritten:
+
+- **`~/.localrc`** — sourced at end of zshrc (secrets, machine-specific config)
+- **`~/.env-vars`** — sourced early in zshrc (environment variables)
+- **`~/.gitconfig.local`** — included by gitconfig for machine-specific git settings
+
+## Linting
+
+```console
+make lint
+```
+
+Runs [shellcheck](https://www.shellcheck.net/) on all shell scripts.
 
