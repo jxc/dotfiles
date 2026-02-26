@@ -193,7 +193,7 @@ cmd_test() {
   local failures=0
 
   # Check symlinks
-  local symlinks=(".asdfrc" ".gitignore" ".gemrc" ".vimrc" ".Brewfile" ".zshrc")
+  local symlinks=(".asdfrc" ".gitignore" ".vimrc" ".Brewfile" ".zshrc")
   for link in "${symlinks[@]}"; do
     if ssh_cmd "$VM_IP" "test -L ~/$link" 2>/dev/null; then
       success "symlink: ~/$link"
@@ -213,7 +213,7 @@ cmd_test() {
   fi
 
   # Check key brew packages
-  local packages=("git" "diff-so-fancy" "shellcheck")
+  local packages=("git" "git-delta" "shellcheck")
   for pkg in "${packages[@]}"; do
     if ssh_cmd "$VM_IP" "/opt/homebrew/bin/brew list $pkg" 2>/dev/null; then
       success "brew package: $pkg"
@@ -224,10 +224,10 @@ cmd_test() {
   done
 
   # Check git config (grep on host side — pipes inside ssh_cmd don't work reliably)
-  if ssh_cmd "$VM_IP" "git config --global --get core.pager" 2>&1 | grep -q diff-so-fancy; then
-    success "git core.pager uses diff-so-fancy"
+  if ssh_cmd "$VM_IP" "git config --global --get core.pager" 2>&1 | grep -q delta; then
+    success "git core.pager uses delta"
   else
-    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] git core.pager not set to diff-so-fancy\n"
+    printf "\r\033[2K  [\033[0;31mFAIL\033[0m] git core.pager not set to delta\n"
     failures=$((failures + 1))
   fi
 
