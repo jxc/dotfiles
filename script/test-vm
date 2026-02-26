@@ -189,6 +189,14 @@ cmd_test() {
   ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/bootstrap" || fail "bootstrap failed"
   success "bootstrap completed"
 
+  info "running macOS defaults"
+  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./macos/set-defaults.sh 2>/tmp/set-defaults-stderr.log"
+  if ssh_cmd "$VM_IP" "test -s /tmp/set-defaults-stderr.log"; then
+    ssh_cmd "$VM_IP" "cat /tmp/set-defaults-stderr.log" >&2
+    fail "set-defaults.sh produced errors on stderr"
+  fi
+  success "macOS defaults applied (no errors)"
+
   info "running verification checks"
   ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/verify" || fail "verification failed"
 }

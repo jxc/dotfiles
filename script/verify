@@ -84,6 +84,26 @@ else
   failures=$((failures + 1))
 fi
 
+# Check macOS defaults (spot-check representative non-default values)
+defaults_checks=(
+  "com.apple.dock:mineffect:scale"
+  "com.apple.finder:ShowPathbar:1"
+  "NSGlobalDomain:NSDocumentSaveNewDocumentsToCloud:0"
+)
+for entry in "${defaults_checks[@]}"; do
+  domain="${entry%%:*}"
+  rest="${entry#*:}"
+  key="${rest%%:*}"
+  expected="${rest#*:}"
+  actual="$(defaults read "$domain" "$key" 2>/dev/null || echo "__MISSING__")"
+  if [ "$actual" = "$expected" ]; then
+    success "defaults: $domain $key = $expected"
+  else
+    fail_msg "defaults: $domain $key expected '$expected', got '$actual'"
+    failures=$((failures + 1))
+  fi
+done
+
 echo ""
 if [ "$failures" -eq 0 ]; then
   success "all verification checks passed"
