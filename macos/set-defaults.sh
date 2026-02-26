@@ -35,9 +35,6 @@ defaults write com.apple.universalaccess closeViewZoomFollowsFocus -bool true
 echo "  › Avoid the creation of .DS_Store files on network volumes"
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
-echo "  › Disable Dashboard"
-defaults write com.apple.dashboard mcx-disabled -bool true
-
 echo "  › Disable smart quotes and smart dashes as they're annoying when typing code"
 defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
 defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
@@ -88,15 +85,6 @@ defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 echo "  › Disable the warning when changing a file extension"
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-echo "  › Allow text selection in Quick Look"
-defaults write com.apple.finder QLEnableTextSelection -bool true
-
-echo "  › Disable the warning before emptying the Trash"
-defaults write com.apple.finder WarnOnEmptyTrash -bool false
-
-echo "  › Empty Trash securely by default"
-defaults write com.apple.finder EmptyTrashSecurely -bool true
-
 #############################
 
 echo ""
@@ -119,18 +107,6 @@ defaults write NSGlobalDomain WebKitDeveloperExtras -bool true
 
 echo "  › Disable the annoying backswipe in Chrome"
 defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
-
-#############################
-
-echo ""
-echo "› Media:"
-
-if [ -z "$KEEP_ITUNES" ]; then
-	echo "  › Disable iTunes helper"
-	disable_agent /Applications/iTunes.app/Contents/MacOS/iTunesHelper.app
-	echo "  › Prevent play button from launching iTunes"
-	unload_agent /System/Library/LaunchAgents/com.apple.rcd.plist
-fi
 
 #############################
 
