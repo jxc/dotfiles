@@ -40,7 +40,6 @@ The zsh loader (`zsh/zshrc.symlink`) auto-discovers files by naming convention a
 ### Local Customization (not versioned)
 
 - `~/.localrc` — Sourced at end of zshrc for secrets/machine-specific config
-- `~/.env-vars` — Sourced early in zshrc for environment variables
 - `git/gitconfig.symlink.example` — Template; actual gitconfig is generated during bootstrap
 
 ### Repository Assets

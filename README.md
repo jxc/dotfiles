@@ -88,7 +88,6 @@ A launchd agent (installed by `autoupdate/install.sh`) runs `bin/dot_update` eve
 These files are not checked in and won't be overwritten:
 
 - **`~/.localrc`** — sourced at end of zshrc (secrets, machine-specific config)
-- **`~/.env-vars`** — sourced early in zshrc (environment variables)
 - **`~/.gitconfig.local`** — included by gitconfig for machine-specific git settings
 
 ## macOS Defaults
