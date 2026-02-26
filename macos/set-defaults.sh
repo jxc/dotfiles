@@ -43,9 +43,6 @@ echo "  › Disable the 'Are you sure you want to open this application?' dialog
 defaults write com.apple.LaunchServices LSQuarantine -bool false
 defaults write com.googlecode.iterm2 PromptOnQuit -bool false
 
-echo "  › Show battery percent"
-defaults write com.apple.menuextra.battery ShowPercent -bool true
-
 echo "  › Enable Debug Menu in the Mac App Store"
 defaults write com.apple.appstore ShowDebugMenu -bool true
 
@@ -134,10 +131,7 @@ defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
 #############################
 
 echo ""
-echo "› Kill related apps"
-for app in "Activity Monitor" "Address Book" "Calendar" "Contacts" "cfprefsd" \
-	"Dock" "Finder" "Mail" "Messages" "Safari" "SystemUIServer" \
-	"Terminal" "Photos"; do
-	killall "$app" >/dev/null 2>&1
-done
+echo "› Restarting affected services (Dock and Finder only)"
+killall "Dock" >/dev/null 2>&1
+killall "Finder" >/dev/null 2>&1
 set -e

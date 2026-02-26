@@ -1,11 +1,8 @@
 # this block is in alphabetic order
-caarlos0/ports kind:path
-caarlos0/zsh-git-fetch-merge kind:path
 djui/alias-tips
 mafredri/zsh-async
 robbyrussell/oh-my-zsh path:plugins/extract
 robbyrussell/oh-my-zsh path:plugins/sudo
-rupa/z
 zsh-users/zsh-completions
 zsh-users/zsh-autosuggestions
 

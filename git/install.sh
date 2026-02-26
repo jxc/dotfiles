@@ -9,7 +9,13 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 # 	git config --global credential.helper cache
 # fi
 
-# better diffs
-if which diff-so-fancy >/dev/null 2>&1; then
-	git config --global core.pager "diff-so-fancy | less --tabs=4 -RFXS"
+# better diffs with delta
+if command -v delta >/dev/null 2>&1; then
+	git config --global core.pager delta
+	git config --global interactive.diffFilter "delta --color-only"
+	git config --global delta.navigate true
+	git config --global delta.line-numbers true
+	git config --global delta.syntax-theme "Dracula"
+	git config --global merge.conflictstyle diff3
+	git config --global diff.colorMoved default
 fi

@@ -28,7 +28,7 @@ Requires a logout or restart to take full effect.
 
 ## How it works
 
-Everything is organized into **topic directories** (e.g., `git/`, `ruby/`, `zsh/`). The zsh loader (`zsh/zshrc.symlink`) auto-discovers files by naming convention:
+Everything is organized into **topic directories** (e.g., `git/`, `fzf/`, `zsh/`). The zsh loader (`zsh/zshrc.symlink`) auto-discovers files by naming convention:
 
 | Pattern | When loaded | Purpose |
 |---------|------------|---------|
