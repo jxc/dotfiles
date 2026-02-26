@@ -300,16 +300,33 @@ cmd_shell() {
 
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
+cmd_cleanup() {
+  local count=0
+  for vm in $(tart list 2>/dev/null | awk '/^local.*dotfiles-test-/{print $2}'); do
+    info "stopping and deleting '$vm'"
+    tart stop "$vm" 2>/dev/null || true
+    tart delete "$vm" 2>/dev/null || true
+    count=$((count + 1))
+  done
+  if [ "$count" -eq 0 ]; then
+    success "no leftover test VMs found"
+  else
+    success "cleaned up $count test VM(s)"
+  fi
+}
+
 case "${1:-}" in
-  setup) cmd_setup ;;
-  test)  cmd_test ;;
-  shell) cmd_shell ;;
+  setup)   cmd_setup ;;
+  test)    cmd_test ;;
+  shell)   cmd_shell ;;
+  cleanup) cmd_cleanup ;;
   *)
-    echo "Usage: script/test-vm {setup|test|shell}"
+    echo "Usage: script/test-vm {setup|test|shell|cleanup}"
     echo ""
-    echo "  setup  — Install Tart and pull macOS base image"
-    echo "  test   — Automated: clone VM, run bootstrap, verify, cleanup"
-    echo "  shell  — Interactive: clone VM, print SSH info, wait for Ctrl-C"
+    echo "  setup    — Install Tart and pull macOS base image"
+    echo "  test     — Automated: clone VM, run bootstrap, verify, cleanup"
+    echo "  shell    — Interactive: clone VM, print SSH info, wait for Ctrl-C"
+    echo "  cleanup  — Stop and delete all leftover dotfiles-test-* VMs"
     exit 1
     ;;
 esac
