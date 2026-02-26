@@ -14,7 +14,7 @@ Bootstrap will:
 1. Set up your git author name/email (interactive, first run only)
 2. Symlink all `*.symlink` files into `$HOME` (existing files backed up with `.backup` suffix)
 3. Install Homebrew and everything in the `Brewfile`
-4. Run all topic `install.sh` scripts (antidote, asdf, git config, autoupdate cron)
+4. Run all topic `install.sh` scripts (antidote, asdf, git config, autoupdate launchd)
 
 ### macOS defaults
 
@@ -44,7 +44,7 @@ To add a new topic, create a directory and drop in files following the conventio
 
 ## Keeping up to date
 
-A cron job (installed by `autoupdate/install.sh`) runs `bin/dot_update` every 2 hours, which pulls the latest changes, updates submodules, re-runs all installers, and refreshes antidote plugins.
+A launchd agent (installed by `autoupdate/install.sh`) runs `bin/dot_update` every 2 hours, which pulls the latest changes, updates submodules, re-runs all installers, and refreshes antidote plugins.
 
 ## Testing
 

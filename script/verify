@@ -2,7 +2,7 @@
 #
 # verify — Verify that dotfiles bootstrap completed successfully
 #
-# Checks symlinks, Homebrew packages, git config, antidote, asdf, and crontab.
+# Checks symlinks, Homebrew packages, git config, antidote, asdf, and launchd agent.
 # Runs locally (used by both CI and script/test-vm via SSH).
 
 set -uo pipefail
@@ -74,11 +74,13 @@ else
   failures=$((failures + 1))
 fi
 
-# Check crontab
-if crontab -l 2>/dev/null | grep -q dot_update; then
-  success "crontab contains dot_update"
+# Check launchd agent
+if launchctl print "gui/$(id -u)/com.dotfiles.update" >/dev/null 2>&1; then
+  success "launchd agent com.dotfiles.update loaded"
+elif [ -f "$HOME/Library/LaunchAgents/com.dotfiles.update.plist" ]; then
+  success "launchd plist installed (not yet loaded)"
 else
-  fail_msg "crontab missing dot_update entry"
+  fail_msg "launchd agent com.dotfiles.update not installed"
   failures=$((failures + 1))
 fi
 
