@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: make lint
+
+  bootstrap:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Symlink checkout to ~/.dotfiles
+        run: ln -s "$GITHUB_WORKSPACE" "$HOME/.dotfiles"
+
+      - name: Pre-seed git config
+        run: |
+          git config --global user.name "CI User"
+          git config --global user.email "ci@dotfiles.local"
+          git config --global dotfiles.managed true
+
+      - name: Run bootstrap
+        run: ./script/bootstrap
+
+      - name: Run verification
+        run: ./script/verify

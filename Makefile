@@ -2,9 +2,12 @@
 SHELL_FILES := $(wildcard */*.sh) $(wildcard script/*)
 BIN_SCRIPTS := $(filter-out bin/git-wtf, $(wildcard bin/*))
 
-.PHONY: lint vm-setup vm-test vm-shell vm-cleanup
+.PHONY: lint verify vm-setup vm-test vm-shell vm-cleanup
 lint:
 	shellcheck $(SHELL_FILES) $(BIN_SCRIPTS)
+
+verify:
+	./script/verify
 
 vm-setup:
 	./script/test-vm setup

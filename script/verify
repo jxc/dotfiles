@@ -1,0 +1,91 @@
+#!/bin/bash
+#
+# verify — Verify that dotfiles bootstrap completed successfully
+#
+# Checks symlinks, Homebrew packages, git config, antidote, asdf, and crontab.
+# Runs locally (used by both CI and script/test-vm via SSH).
+
+set -uo pipefail
+
+success() { printf "\r\033[2K  [ \033[00;32mOK\033[0m ] %s\n" "$1" >&2; }
+fail_msg() { printf "\r\033[2K  [\033[0;31mFAIL\033[0m] %s\n" "$1" >&2; }
+
+failures=0
+
+# Check symlinks
+symlinks=(".asdfrc" ".gitignore" ".vimrc" ".Brewfile" ".zshrc")
+for link in "${symlinks[@]}"; do
+  if [ -L "$HOME/$link" ]; then
+    success "symlink: ~/$link"
+  else
+    fail_msg "symlink missing: ~/$link"
+    failures=$((failures + 1))
+  fi
+done
+
+# Check Homebrew installed
+if /opt/homebrew/bin/brew --version >/dev/null 2>&1; then
+  success "homebrew installed"
+else
+  fail_msg "homebrew not installed"
+  failures=$((failures + 1))
+fi
+
+# Check key brew packages
+packages=("git" "git-delta" "shellcheck")
+for pkg in "${packages[@]}"; do
+  if /opt/homebrew/bin/brew list "$pkg" >/dev/null 2>&1; then
+    success "brew package: $pkg"
+  else
+    fail_msg "brew package missing: $pkg"
+    failures=$((failures + 1))
+  fi
+done
+
+# Check git config
+if git config --global --get core.pager 2>/dev/null | grep -q delta; then
+  success "git core.pager uses delta"
+else
+  fail_msg "git core.pager not set to delta"
+  failures=$((failures + 1))
+fi
+
+# Check antidote (installed via brew)
+if /opt/homebrew/bin/brew list antidote >/dev/null 2>&1; then
+  success "antidote installed"
+else
+  fail_msg "antidote not installed"
+  failures=$((failures + 1))
+fi
+
+# Check antidote plugins were generated
+if [ -s "$HOME/.zsh_plugins.zsh" ]; then
+  success "antidote plugins generated (~/.zsh_plugins.zsh is non-empty)"
+else
+  fail_msg "antidote plugins not generated (~/.zsh_plugins.zsh missing or empty)"
+  failures=$((failures + 1))
+fi
+
+# Check asdf (installed via brew)
+if /opt/homebrew/bin/brew list asdf >/dev/null 2>&1; then
+  success "asdf installed"
+else
+  fail_msg "asdf not installed"
+  failures=$((failures + 1))
+fi
+
+# Check crontab
+if crontab -l 2>/dev/null | grep -q dot_update; then
+  success "crontab contains dot_update"
+else
+  fail_msg "crontab missing dot_update entry"
+  failures=$((failures + 1))
+fi
+
+echo ""
+if [ "$failures" -eq 0 ]; then
+  success "all verification checks passed"
+else
+  fail_msg "$failures verification check(s) failed"
+  exit 1
+fi

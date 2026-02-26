@@ -48,9 +48,12 @@ A cron job (installed by `autoupdate/install.sh`) runs `bin/dot_update` every 2 
 
 ## Testing
 
-Changes can be tested in a sandboxed macOS VM using [Tart](https://tart.run):
+A GitHub Actions CI pipeline runs on every push: shellcheck linting on Ubuntu and a full bootstrap + verification on a macOS runner.
+
+Locally, you can verify a bootstrapped machine or test in a sandboxed VM:
 
 ```console
+make verify      # run post-bootstrap verification checks
 make vm-setup    # one-time: install Tart, pull macOS Sequoia base image
 make vm-test     # automated: clone VM, run bootstrap, verify results, cleanup
 make vm-shell    # interactive: clone VM, print SSH info for manual exploration
