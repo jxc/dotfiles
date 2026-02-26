@@ -190,7 +190,7 @@ cmd_test() {
   success "bootstrap completed"
 
   info "running verification checks"
-  ssh_cmd "$VM_IP" "\$HOME/.dotfiles/script/verify" || fail "verification failed"
+  ssh_cmd "$VM_IP" "cd ~/.dotfiles && ./script/verify" || fail "verification failed"
 }
 
 cmd_shell() {
