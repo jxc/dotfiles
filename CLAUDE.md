@@ -55,3 +55,9 @@ A cron job (set by `autoupdate/install.sh`) runs `dot_update` every 2 hours, whi
 5. Add `*.symlink` files for dotfiles that should land in `$HOME`
 
 Existing files are backed up with `.backup` suffix during symlink creation.
+
+## Workflow Rules
+
+- **Use Make targets** when they exist (e.g., `make lint` not `shellcheck ...` directly)
+- **Update CLAUDE.md** whenever new commands are added or architecture materially changes
+- **Update README.md** whenever changes affect documented features, commands, or structure
