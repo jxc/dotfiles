@@ -130,6 +130,7 @@ run_set_defaults() {
 }
 
 print_ssh_banner() {
+  local state="${1:-fresh}"
   echo ""
   echo "  ┌─────────────────────────────────────────────────────────┐"
   echo "  │  VM is ready! Connect with:                             │"
@@ -139,6 +140,14 @@ print_ssh_banner() {
   echo "  │                                                         │"
   echo "  │  Dotfiles are at: ~/.dotfiles                           │"
   echo "  │  Shared mount at: /Volumes/My Shared Files/dotfiles/    │"
+  echo "  │                                                         │"
+  if [ "$state" = "provisioned" ]; then
+    printf "  │  %-56s│\n" "✅ Bootstrap:      completed"
+    printf "  │  %-56s│\n" "✅ macOS defaults: applied"
+  else
+    printf "  │  %-56s│\n" "❌ Bootstrap:      not run"
+    printf "  │  %-56s│\n" "❌ macOS defaults: not applied"
+  fi
   echo "  │                                                         │"
   echo "  │  Press Ctrl-C to stop and delete the VM                 │"
   echo "  └─────────────────────────────────────────────────────────┘"
@@ -246,7 +255,7 @@ cmd_ready() {
   setup_vm
   run_bootstrap
   run_set_defaults
-  print_ssh_banner
+  print_ssh_banner provisioned
   wait
 }
 
