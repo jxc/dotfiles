@@ -33,5 +33,8 @@ jobs:
       - name: Run bootstrap
         run: ./script/bootstrap
 
+      - name: Run macOS defaults
+        run: ./macos/set-defaults.sh
+
       - name: Run verification
         run: ./script/verify
