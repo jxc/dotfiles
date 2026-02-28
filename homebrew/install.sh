@@ -1,9 +1,8 @@
 #!/bin/sh
 #
-# Homebrew
+# Homebrew Setup Script
 #
-# This installs some of the common dependencies needed (or at least desired)
-# using Homebrew.
+# This installs common dependencies needed using Homebrew.
 
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
@@ -18,5 +17,3 @@ else
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-
-exit 0
