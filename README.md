@@ -17,7 +17,7 @@
 ## Install
 
 ```console
-git clone git@github.com:tylerwolf/dotfiles.git ~/.dotfiles
+git clone git@github.com:jxc/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./script/bootstrap
 ```

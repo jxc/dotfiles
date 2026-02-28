@@ -14,7 +14,7 @@ brew 'fd'           # fast find replacement
 brew 'bat'          # cat with syntax highlighting
 brew 'eza'          # modern ls with git awareness
 brew 'git-delta'    # better git diffs (replaces diff-so-fancy)
-brew 'zoxide'       # smarter cd (replaces z)
+brew 'zoxide'       # smarter cd (replaces z / autojump)
 brew 'fzf'          # fuzzy finder for everything
 brew 'atuin'        # better shell history (replaces zsh history)
 
@@ -29,3 +29,11 @@ brew 'btop'         # system monitor
 brew 'tldr'         # simplified man pages
 brew 'tree'         # directory tree viewer
 brew 'cowsay'
+
+# Casks
+cask 'bruno'
+cask 'zappy'
+
+# Fonts
+cask 'font-jetbrains-mono'
+cask 'font-hack'
