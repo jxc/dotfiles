@@ -15,6 +15,9 @@ elif command -v gls &>/dev/null; then
   alias ldot='gls -ld --color .*'      # long list of dotfiles only
 fi
 
+# jump to code directory and start claude
+alias cc='cd "$CODE_DIR" && claude'
+
 alias rm='rm -i'
 alias cp='cp -i'
 alias mv='mv -i'
