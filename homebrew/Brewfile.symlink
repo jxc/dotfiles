@@ -1,3 +1,6 @@
+# Taps
+tap 'jxc/tap'
+
 # Replace outdated system libraries
 brew 'git'
 brew 'openssl'
@@ -29,9 +32,6 @@ brew 'btop'         # system monitor
 brew 'tldr'         # simplified man pages
 brew 'tree'         # directory tree viewer
 brew 'cowsay'
-
-# Taps
-tap 'jxc/tap'
 
 # Casks
 cask 'bruno'
