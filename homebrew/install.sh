@@ -11,6 +11,7 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 if test "$(which brew)"
 then
   brew update
+  brew tap jxc/tap 2>/dev/null || true
   brew bundle --global
   brew cleanup
 else
