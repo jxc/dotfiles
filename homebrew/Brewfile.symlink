@@ -30,9 +30,12 @@ brew 'tldr'         # simplified man pages
 brew 'tree'         # directory tree viewer
 brew 'cowsay'
 
+# Taps
+tap 'jxc/tap'
+
 # Casks
 cask 'bruno'
-cask 'zappy'
+cask 'codebar'
 
 # Fonts
 cask 'font-jetbrains-mono'
