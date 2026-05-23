@@ -17,6 +17,7 @@ fi
 
 # jump to code directory and start claude
 alias cc='cd "$CODE_DIR" && claude'
+alias cca='cd "$CODE_DIR" && claude agents'
 
 alias rm='rm -i'
 alias cp='cp -i'
