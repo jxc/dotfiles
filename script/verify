@@ -2,7 +2,7 @@
 #
 # verify — Verify that dotfiles bootstrap completed successfully
 #
-# Checks symlinks, Homebrew packages, git config, antidote, asdf, and launchd agent.
+# Checks symlinks, Homebrew packages, git config, antidote, mise, and launchd agent.
 # Runs locally (used by both CI and script/test-vm via SSH).
 
 set -uo pipefail
@@ -13,7 +13,7 @@ fail_msg() { printf "\r\033[2K  [\033[0;31mFAIL\033[0m] %s\n" "$1" >&2; }
 failures=0
 
 # Check symlinks
-symlinks=(".asdfrc" ".gitignore" ".vimrc" ".Brewfile" ".zshrc")
+symlinks=(".gitignore" ".vimrc" ".Brewfile" ".zshrc")
 for link in "${symlinks[@]}"; do
   if [ -L "$HOME/$link" ]; then
     success "symlink: ~/$link"
@@ -66,11 +66,11 @@ else
   failures=$((failures + 1))
 fi
 
-# Check asdf (installed via brew)
-if /opt/homebrew/bin/brew list asdf >/dev/null 2>&1; then
-  success "asdf installed"
+# Check mise (installed via brew)
+if /opt/homebrew/bin/brew list mise >/dev/null 2>&1; then
+  success "mise installed"
 else
-  fail_msg "asdf not installed"
+  fail_msg "mise not installed"
   failures=$((failures + 1))
 fi
 

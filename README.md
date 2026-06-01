@@ -26,7 +26,7 @@ Bootstrap will:
 1. Set up your git author name/email (interactive, first run only)
 2. Symlink all `*.symlink` files into `$HOME` (existing files backed up with `.backup` suffix)
 3. Install Homebrew and everything in the `Brewfile`
-4. Run all topic `install.sh` scripts (antidote, asdf, git config, autoupdate launchd)
+4. Run all topic `install.sh` scripts (antidote, mise, git config, autoupdate launchd)
 
 ## What's Included
 
@@ -35,7 +35,7 @@ Bootstrap will:
 | Topic | Purpose |
 |-------|---------|
 | `antidote/` | Zsh plugin manager (replaces antigen/oh-my-zsh) |
-| `asdf/` | Multi-runtime version manager (Node, Ruby, Python, etc.) |
+| `mise/` | Multi-runtime version manager (Node, Ruby, Python, etc.); reads `.tool-versions` |
 | `atuin/` | Synced, searchable shell history |
 | `autoupdate/` | Launchd agent that pulls & re-runs installers every 2 hours |
 | `direnv/` | Per-directory environment variables |

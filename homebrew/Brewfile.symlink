@@ -22,7 +22,7 @@ brew 'fzf'          # fuzzy finder for everything
 brew 'atuin'        # better shell history (replaces zsh history)
 
 # Development tools
-brew 'asdf'
+brew 'mise'         # multi-runtime version manager (replaces asdf)
 brew 'gh'           # GitHub CLI
 brew 'jq'           # JSON processor
 brew 'direnv'       # per-directory env vars
